@@ -98,9 +98,10 @@ tr.tr-day td.lbl{text-align:right;padding-right:8px;background:var(--gDD);font-s
 <div style="margin-bottom:8px">
   <textarea id="noteInput" placeholder="✏️ ملاحظة للمسؤولة (اختياري)..." style="width:100%;border:1.5px solid var(--bd);border-radius:8px;padding:8px 12px;font-family:inherit;font-size:13px;background:var(--sf);color:var(--tx);resize:none;height:60px;outline:none;direction:rtl"></textarea>
 </div>
-<div id="replyBox" style="display:none;background:#e8f6ee;border:1px solid var(--gM);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;color:var(--gD)">
-  <div style="font-size:11px;color:var(--mu);margin-bottom:4px">💬 رد المسؤولة:</div>
-  <div id="replyText"></div>
+<div id="replyBox" style="display:none;margin-bottom:10px">
+  <div style="font-size:11px;font-weight:600;color:var(--gD);margin-bottom:6px">💬 المحادثة مع المسؤولة</div>
+  <div id="myNoteDisplay"></div>
+  <div id="replyDisplay"></div>
 </div>
 <div class="btns">
   <button class="btn btn-send" id="sendBtn" onclick="sendToManager()">☁️ إرسال نتائجي للمسؤولة</button>
@@ -335,9 +336,16 @@ async function checkReply(){
     const json=JSON.parse(txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
     const rows=json.table.rows||[];
     const myRow=rows.find(r=>r.c&&r.c[0]&&r.c[0].v===name);
-    if(myRow&&myRow.c[18]&&myRow.c[18].v){
+    const myNote=document.getElementById('noteInput').value||'';
+    const savedNote=myRow&&myRow.c[17]?myRow.c[17].v:'';
+    const reply=myRow&&myRow.c[18]?myRow.c[18].v:'';
+    const noteToShow=savedNote||myNote;
+    if(noteToShow||reply){
       document.getElementById('replyBox').style.display='block';
-      document.getElementById('replyText').textContent=myRow.c[18].v;
+      const nd=document.getElementById('myNoteDisplay');
+      const rd=document.getElementById('replyDisplay');
+      if(noteToShow)nd.innerHTML='<div style="display:flex;flex-direction:column;align-items:flex-end;margin-bottom:6px"><div style="font-size:10px;color:#7a6a52;margin-bottom:2px">أنتِ</div><div style="background:#fff9e6;border:1px solid #f0c040;color:#856404;padding:8px 12px;border-radius:12px 12px 4px 12px;font-size:12px;max-width:85%">'+noteToShow+'</div></div>';
+      if(reply)rd.innerHTML='<div style="display:flex;flex-direction:column;align-items:flex-start;margin-bottom:6px"><div style="font-size:10px;color:#7a6a52;margin-bottom:2px">المسؤولة ✓</div><div style="background:#d4f4e2;border:1px solid #5cb87a;color:#1a6b3c;padding:8px 12px;border-radius:12px 12px 12px 4px;font-size:12px;max-width:85%">'+reply+'</div></div>';
     }
   }catch(e){}
 }
