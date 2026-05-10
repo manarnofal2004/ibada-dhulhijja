@@ -253,8 +253,11 @@ function render(){
         <div class="prog-t"><div class="prog-f" style="width:${pct}%"></div></div>
         <div class="sec-title">الأداء اليومي</div>
         <div class="days-row">${dots}</div>
-        <div class="sec-title">تفصيل العبادات</div>
-        ${catsHtml}
+        <button class="toggle-btn" onclick="var d=this.nextElementSibling;d.style.display=d.style.display==='block'?'none':'block';this.textContent=d.style.display==='block'?'▲ إخفاء التفاصيل':'▼ عرض تفاصيل العبادات'">▼ عرض تفاصيل العبادات</button>
+        <div style="display:none;margin-top:8px">
+          <div class="sec-title">تفصيل العبادات</div>
+          ${catsHtml}
+        </div>
         <div style="font-size:10px;color:var(--mu);margin-top:8px;text-align:left">آخر إرسال: ${g.lastUpdate||'—'}</div>
       </div>
     </div>`;
