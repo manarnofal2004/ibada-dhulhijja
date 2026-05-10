@@ -54,6 +54,7 @@ tr.tr-day td.lbl{text-align:right;padding-right:8px;background:var(--gDD);font-s
 .btn-send{background:var(--gD);color:#fff}.btn-send:hover{background:var(--gDD)}
 .btn-send.sending{background:var(--gM)}
 .btn-report{background:#1a4a8a;color:#fff}.btn-report:hover{background:#153d73}
+.btn-chat{background:#2d6e9e;color:#fff;border-color:#2d6e9e}.btn-chat:hover{background:#245d87}
 .note{text-align:center;font-size:11px;color:var(--mu);line-height:1.7}
 .status-bar{text-align:center;font-size:12px;padding:8px;border-radius:8px;margin-bottom:8px;display:none}
 .status-bar.ok{background:var(--gL);color:var(--gD);border:1px solid var(--gM)}
@@ -95,13 +96,20 @@ tr.tr-day td.lbl{text-align:right;padding-right:8px;background:var(--gDD);font-s
   <div class="sc"><div class="sl">المعدل</div><div class="sv" id="avgVal">—</div></div>
   <div class="sc"><div class="sl">الأيام</div><div class="sv" id="filledVal">0/10</div></div>
 </div>
-<div style="margin-bottom:8px">
-  <textarea id="noteInput" placeholder="✏️ ملاحظة للمسؤولة (اختياري)..." style="width:100%;border:1.5px solid var(--bd);border-radius:8px;padding:8px 12px;font-family:inherit;font-size:13px;background:var(--sf);color:var(--tx);resize:none;height:60px;outline:none;direction:rtl"></textarea>
-</div>
-<div id="replyBox" style="display:none;margin-bottom:10px">
-  <div style="font-size:11px;font-weight:600;color:var(--gD);margin-bottom:6px">💬 المحادثة مع المسؤولة</div>
-  <div id="myNoteDisplay"></div>
-  <div id="replyDisplay"></div>
+<button class="btn btn-chat" onclick="openChat()">💬 محادثة المسؤولة <span id="chatBadge" style="display:none;background:#c0392b;color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-right:4px"></span></button>
+
+<div id="chatOverlay" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.4);-webkit-overflow-scrolling:touch">
+  <div style="position:absolute;bottom:0;left:0;right:0;background:var(--sf);border-radius:16px 16px 0 0;max-height:80vh;display:flex;flex-direction:column">
+    <div style="background:var(--gD);padding:12px 16px;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+      <span style="color:#fff;font-size:14px;font-weight:600">💬 محادثة المسؤولة</span>
+      <button onclick="document.getElementById('chatOverlay').style.display='none'" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:0 4px">✕</button>
+    </div>
+    <div id="chatMessages" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:200px;max-height:50vh"></div>
+    <div style="padding:10px 12px;border-top:1px solid var(--bd);display:flex;gap:8px;flex-shrink:0">
+      <textarea id="chatInput" placeholder="اكتبي رسالة..." style="flex:1;border:1.5px solid var(--bd);border-radius:10px;padding:8px 12px;font-family:inherit;font-size:13px;resize:none;height:44px;outline:none;direction:rtl;background:var(--sf)"></textarea>
+      <button onclick="sendMessage()" style="background:var(--gD);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-family:inherit;font-size:14px;cursor:pointer;flex-shrink:0">إرسال</button>
+    </div>
+  </div>
 </div>
 <div class="btns">
   <button class="btn btn-send" id="sendBtn" onclick="sendToManager()">☁️ إرسال نتائجي للمسؤولة</button>
@@ -111,7 +119,7 @@ tr.tr-day td.lbl{text-align:right;padding-right:8px;background:var(--gDD);font-s
 <div id="toast"></div>
 
 <script>
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbywvYGhVDPUe7M95XwFbax6mSSP8LSgBEt9OB1f6uVfJ5fHjawxn_sxrXBcnLZEYbTv/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzeCm6q5HLsqvmtwdV3DVviAPywnANiNDFRnBWRXwYYDIgTZ37E9KeFQiuOBBmH-Vy7/exec';
 const ROWS=[
   {cat:'الأذكار',ibada:'أذكار الصباح',pts:1},
   {cat:'الأذكار',ibada:'أذكار المساء',pts:1},
@@ -230,10 +238,10 @@ async function sendToManager(){
     const formUrl='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq';
     
     // Fallback: use the Apps Script with no-cors (data WILL be written, response is just opaque)
-    await fetch('https://script.google.com/macros/s/AKfycbywvYGhVDPUe7M95XwFbax6mSSP8LSgBEt9OB1f6uVfJ5fHjawxn_sxrXBcnLZEYbTv/exec',{
+    await fetch('https://script.google.com/macros/s/AKfycbzeCm6q5HLsqvmtwdV3DVviAPywnANiNDFRnBWRXwYYDIgTZ37E9KeFQiuOBBmH-Vy7/exec',{
       method:'POST',
       mode:'no-cors',
-      body:JSON.stringify({name,grand,avg,filled,dayTotals:dt,state,note:document.getElementById('noteInput').value||''}),
+      body:JSON.stringify({name,grand,avg,filled,dayTotals:dt,state}),
     });
     
     const bar=document.getElementById('statusBar');
@@ -326,7 +334,8 @@ function openReport(){
   ov.appendChild(cb);ov.appendChild(ct);document.body.appendChild(ov);
 }
 
-async function checkReply(){
+let chatMessages=[];
+async function loadChatMessages(){
   const name=document.getElementById('userName').value.trim();
   if(!name)return;
   try{
@@ -336,22 +345,60 @@ async function checkReply(){
     const json=JSON.parse(txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
     const rows=json.table.rows||[];
     const myRow=rows.find(r=>r.c&&r.c[0]&&r.c[0].v===name);
-    const myNote=document.getElementById('noteInput').value||'';
-    const savedNote=myRow&&myRow.c[17]?myRow.c[17].v:'';
-    const reply=myRow&&myRow.c[18]?myRow.c[18].v:'';
-    const noteToShow=savedNote||myNote;
-    if(noteToShow||reply){
-      document.getElementById('replyBox').style.display='block';
-      const nd=document.getElementById('myNoteDisplay');
-      const rd=document.getElementById('replyDisplay');
-      if(noteToShow)nd.innerHTML='<div style="display:flex;flex-direction:column;align-items:flex-end;margin-bottom:6px"><div style="font-size:10px;color:#7a6a52;margin-bottom:2px">أنتِ</div><div style="background:#fff9e6;border:1px solid #f0c040;color:#856404;padding:8px 12px;border-radius:12px 12px 4px 12px;font-size:12px;max-width:85%">'+noteToShow+'</div></div>';
-      if(reply)rd.innerHTML='<div style="display:flex;flex-direction:column;align-items:flex-start;margin-bottom:6px"><div style="font-size:10px;color:#7a6a52;margin-bottom:2px">المسؤولة ✓</div><div style="background:#d4f4e2;border:1px solid #5cb87a;color:#1a6b3c;padding:8px 12px;border-radius:12px 12px 12px 4px;font-size:12px;max-width:85%">'+reply+'</div></div>';
+    if(myRow&&myRow.c[17]&&myRow.c[17].v){
+      try{chatMessages=JSON.parse(myRow.c[17].v);}catch(e){chatMessages=[];}
+      const unread=chatMessages.filter(m=>m.from==='manager').length;
+      if(unread>0){
+        document.getElementById('chatBadge').style.display='inline';
+        document.getElementById('chatBadge').textContent=unread;
+      }
+      renderChat();
     }
   }catch(e){}
 }
+function renderChat(){
+  const box=document.getElementById('chatMessages');
+  if(!box)return;
+  const name=document.getElementById('userName').value||'أنتِ';
+  box.innerHTML=chatMessages.length===0?'<div style="text-align:center;color:#7a6a52;font-size:12px;padding:2rem">لا توجد رسائل بعد</div>':
+  chatMessages.map(m=>{
+    const isMe=m.from==='girl';
+    const bg=isMe?'#fff9e6':'#d4f4e2';
+    const border=isMe?'#f0c040':'#5cb87a';
+    const color=isMe?'#856404':'#1a6b3c';
+    const align=isMe?'flex-end':'flex-start';
+    const radius=isMe?'12px 12px 4px 12px':'12px 12px 12px 4px';
+    const sender=isMe?'أنتِ':'المسؤولة';
+    return '<div style="display:flex;flex-direction:column;align-items:'+align+';gap:2px"><div style="font-size:10px;color:#7a6a52">'+sender+'</div><div style="background:'+bg+';border:1px solid '+border+';color:'+color+';padding:8px 12px;border-radius:'+radius+';font-size:12px;max-width:80%">'+m.text+'</div><div style="font-size:9px;color:#aaa">'+m.time+'</div></div>';
+  }).join('');
+  box.scrollTop=box.scrollHeight;
+}
+function openChat(){
+  document.getElementById('chatOverlay').style.display='flex';
+  document.getElementById('chatBadge').style.display='none';
+  renderChat();
+  loadChatMessages();
+}
+async function sendMessage(){
+  const name=document.getElementById('userName').value.trim();
+  if(!name){showToast('أدخلي اسمك أولاً');return;}
+  const input=document.getElementById('chatInput');
+  const text=input.value.trim();
+  if(!text)return;
+  input.value='';
+  chatMessages.push({from:'girl',text,time:new Date().toLocaleTimeString('ar')});
+  renderChat();
+  try{
+    await fetch('https://script.google.com/macros/s/AKfycbzeCm6q5HLsqvmtwdV3DVviAPywnANiNDFRnBWRXwYYDIgTZ37E9KeFQiuOBBmH-Vy7/exec',{
+      method:'POST',mode:'no-cors',
+      body:JSON.stringify({type:'message',name,from:'girl',text}),
+    });
+  }catch(e){}
+}
+async function checkReply(){await loadChatMessages();}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 document.getElementById('userName').addEventListener('input',save);
-load();build();setTimeout(checkReply,1000);
+load();build();setTimeout(loadChatMessages,1000);
 </script>
 </body>
 </html>
