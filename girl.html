@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>جدول عبادة عشر ذي الحجة</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
@@ -16,10 +17,10 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{overflow-x:hidden;width:100%}
-body{font-family:'Noto Naskh Arabic',system-ui,-apple-system,Tahoma,sans-serif;background:var(--bg);color:var(--tx);padding:1.2rem 0.8rem 3rem}
+body{font-family:'Amiri',system-ui,Tahoma,sans-serif;background:var(--bg);color:var(--tx);padding:1.2rem 0.8rem 3rem}
 .hdr{text-align:center;margin-bottom:1.4rem;padding-bottom:1rem;border-bottom:1.5px solid var(--bd)}
 .bsm{font-size:16px;color:var(--gold);margin-bottom:5px;font-weight:600}
-.hdr h1{font-size:22px;font-weight:700;color:var(--gD);font-family:'Noto Naskh Arabic',serif}
+.hdr h1{font-size:24px;font-weight:700;color:#d4a017;font-family:'Amiri',serif;text-shadow:0 1px 3px rgba(0,0,0,.2)}
 .hdr p{font-size:12px;color:var(--mu);margin-top:5px}
 .leg{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:1rem;font-size:12px;color:var(--mu)}
 .li{display:flex;align-items:center;gap:5px}
@@ -94,6 +95,13 @@ tr.tr-day td.lbl{text-align:right;padding-right:8px;background:var(--gDD);font-s
   <div class="sc"><div class="sl">المعدل</div><div class="sv" id="avgVal">—</div></div>
   <div class="sc"><div class="sl">الأيام</div><div class="sv" id="filledVal">0/10</div></div>
 </div>
+<div style="margin-bottom:8px">
+  <textarea id="noteInput" placeholder="✏️ ملاحظة للمسؤولة (اختياري)..." style="width:100%;border:1.5px solid var(--bd);border-radius:8px;padding:8px 12px;font-family:inherit;font-size:13px;background:var(--sf);color:var(--tx);resize:none;height:60px;outline:none;direction:rtl"></textarea>
+</div>
+<div id="replyBox" style="display:none;background:#e8f6ee;border:1px solid var(--gM);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;color:var(--gD)">
+  <div style="font-size:11px;color:var(--mu);margin-bottom:4px">💬 رد المسؤولة:</div>
+  <div id="replyText"></div>
+</div>
 <div class="btns">
   <button class="btn btn-send" id="sendBtn" onclick="sendToManager()">☁️ إرسال نتائجي للمسؤولة</button>
   <button class="btn btn-report" onclick="openReport()">📊 عرض تقريري</button>
@@ -102,7 +110,7 @@ tr.tr-day td.lbl{text-align:right;padding-right:8px;background:var(--gDD);font-s
 <div id="toast"></div>
 
 <script>
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwbp4AJhAqs0TTQVx3n8OXUq23um5hdkx1t9vvp0IigMgvrGQSsz-cEt1eKCwF8wOG_/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxfCRfQzYru7s13V15A5l8K64CZcOghMqnt1x8Yj_l_3Ws8izBr-gRFwaqlP3ke7VY/exec';
 const ROWS=[
   {cat:'الأذكار',ibada:'أذكار الصباح',pts:1},
   {cat:'الأذكار',ibada:'أذكار المساء',pts:1},
@@ -221,10 +229,10 @@ async function sendToManager(){
     const formUrl='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq';
     
     // Fallback: use the Apps Script with no-cors (data WILL be written, response is just opaque)
-    await fetch('https://script.google.com/macros/s/AKfycbwbp4AJhAqs0TTQVx3n8OXUq23um5hdkx1t9vvp0IigMgvrGQSsz-cEt1eKCwF8wOG_/exec',{
+    await fetch('https://script.google.com/macros/s/AKfycbxfCRfQzYru7s13V15A5l8K64CZcOghMqnt1x8Yj_l_3Ws8izBr-gRFwaqlP3ke7VY/exec',{
       method:'POST',
       mode:'no-cors',
-      body:JSON.stringify({name,grand,avg,filled,dayTotals:dt,state}),
+      body:JSON.stringify({name,grand,avg,filled,dayTotals:dt,state,note:document.getElementById('noteInput').value||''}),
     });
     
     const bar=document.getElementById('statusBar');
@@ -317,9 +325,25 @@ function openReport(){
   ov.appendChild(cb);ov.appendChild(ct);document.body.appendChild(ov);
 }
 
+async function checkReply(){
+  const name=document.getElementById('userName').value.trim();
+  if(!name)return;
+  try{
+    const url='https://docs.google.com/spreadsheets/d/1Xy0Yr7jSxCpozMz8b93CifgoD8oPKSMdk-6dmZoxbRg/gviz/tq?tqx=out:json&sheet='+encodeURIComponent('بيانات')+'&t='+Date.now();
+    const resp=await fetch(url);
+    const txt=await resp.text();
+    const json=JSON.parse(txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+    const rows=json.table.rows||[];
+    const myRow=rows.find(r=>r.c&&r.c[0]&&r.c[0].v===name);
+    if(myRow&&myRow.c[18]&&myRow.c[18].v){
+      document.getElementById('replyBox').style.display='block';
+      document.getElementById('replyText').textContent=myRow.c[18].v;
+    }
+  }catch(e){}
+}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 document.getElementById('userName').addEventListener('input',save);
-load();build();
+load();build();setTimeout(checkReply,1000);
 </script>
 </body>
 </html>
