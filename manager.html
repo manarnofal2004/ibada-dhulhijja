@@ -119,7 +119,7 @@ body{font-family:'Amiri',system-ui,Tahoma,sans-serif;background:var(--bg);color:
 <div id="toast"></div>
 <script>
 const SHEET_ID='1Xy0Yr7jSxCpozMz8b93CifgoD8oPKSMdk-6dmZoxbRg';
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwg1_1mK_ikW1QF9bHBa-3c0xQN3zqWEP8GB6MWQP6ES9kMKCee6isbmqzrWIuIFLl0/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbytrZcllplGnIAHS0B2rGh4HHUcsR6BZp4xzTNz0NkvrrB7Y7oR09gJgSwi2rVekRCl/exec';
 const ROWS=[
   {cat:'الأذكار',ibada:'أذكار الصباح',pts:1},
   {cat:'الأذكار',ibada:'أذكار المساء',pts:1},
@@ -158,7 +158,8 @@ async function loadData(){
       for(let i=4;i<14;i++)dt.push(r.c[i]?Number(r.c[i].v)||0:0);
       let state={};
       try{if(r.c[15]&&r.c[15].v)state=JSON.parse(r.c[15].v);}catch(e){}
-      return {name:r.c[0].v,grand:r.c[1]?Number(r.c[1].v)||0:0,avg:r.c[2]?r.c[2].v:'—',filled:r.c[3]?r.c[3].v:0,dayTotals:dt,state,lastUpdate:r.c[16]?r.c[16].v:'',noteFromGirl:r.c[17]?r.c[17].v:'',noteFromManager:r.c[18]?r.c[18].v:''};
+      var notes={};try{if(r.c[17]&&r.c[17].v)notes=JSON.parse(r.c[17].v);}catch(e){}
+      return {name:r.c[0].v,grand:r.c[1]?Number(r.c[1].v)||0:0,avg:r.c[2]?r.c[2].v:'—',filled:r.c[3]?r.c[3].v:0,dayTotals:dt,state,lastUpdate:r.c[16]?r.c[16].v:'',notes:notes};
     });
     document.getElementById('lastUp').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar');
     render();
@@ -275,23 +276,22 @@ function render(){
           <div class="sec-title">تفصيل العبادات</div>
           ${catsHtml}
         </div>
-        <button class="notes-btn" onclick="toggleNotes(${gi})">💬 رسائل ${g.name}</button>
+        ${Object.keys(g.notes||{}).length>0?`
+        <button class="notes-btn" onclick="toggleNotes(${gi})">
+          📝 ملاحظات الأيام (${Object.keys(g.notes).length})
+        </button>
         <div class="notes-panel" id="notesPanel_${gi}">
           <div class="notes-list">
-            ${g.noteFromGirl?`<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-              <div style="font-size:9px;color:#7a6a52">ملاحظة من ${g.name}</div>
-              <div style="background:#fff9e6;border:1px solid #f0c040;color:#856404;padding:7px 10px;border-radius:10px 10px 3px 10px;font-size:11px;max-width:90%">${g.noteFromGirl}</div>
-            </div>`:'<div style="font-size:11px;color:#aaa;text-align:center;padding:8px">لا توجد ملاحظة</div>'}
-            ${g.noteFromManager?`<div style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin-top:6px">
-              <div style="font-size:9px;color:#7a6a52">رسالتك لـ ${g.name}</div>
-              <div style="background:#d4f4e2;border:1px solid #5cb87a;color:#1a6b3c;padding:7px 10px;border-radius:10px 10px 10px 3px;font-size:11px;max-width:90%">${g.noteFromManager}</div>
-            </div>`:''}
+            ${Array.from({length:10},(_,i)=>i+1).map(d=>{
+              const n=g.notes[d];
+              return n?`<div style="background:#fff;border-radius:8px;border:1px solid #f0c040;padding:8px 10px;margin-bottom:4px">
+                <div style="font-size:9px;color:#b8860b;font-weight:700;margin-bottom:3px">اليوم ${d}</div>
+                <div style="font-size:11px;color:#856404">${n.text}</div>
+                <div style="font-size:9px;color:#aaa;margin-top:2px">${n.time||''}</div>
+              </div>`:'';
+            }).join('')}
           </div>
-          <div class="notes-footer">
-            <textarea class="reply-input" id="mgrInput_${gi}" placeholder="أرسلي رسالة لـ ${g.name}..."></textarea>
-            <button class="reply-send" onclick="sendManagerNote('${g.name}',${gi})">إرسال ✓</button>
-          </div>
-        </div>
+        </div>`:''}
         <div style="font-size:10px;color:var(--mu);margin-top:6px;text-align:left">آخر إرسال: ${g.lastUpdate||'—'}</div>
       </div>
     </div>`;
@@ -303,20 +303,6 @@ function render(){
 function toggleNotes(gi){
   const panel=document.getElementById('notesPanel_'+gi);
   panel.classList.toggle('open');
-}
-async function sendManagerNote(name,gi){
-  const input=document.getElementById('mgrInput_'+gi);
-  const note=input.value.trim();
-  if(!note){showToast('اكتبي الرسالة أولاً');return;}
-  input.value='';
-  try{
-    await fetch('https://script.google.com/macros/s/AKfycbwg1_1mK_ikW1QF9bHBa-3c0xQN3zqWEP8GB6MWQP6ES9kMKCee6isbmqzrWIuIFLl0/exec',{method:'POST',mode:'no-cors',body:JSON.stringify({type:'noteManager',name,note})});
-    showToast('تم الإرسال لـ '+name+' ✓');
-    setTimeout(loadData,1500);
-  }catch(e){
-    showToast('تم الإرسال ✓');
-    setTimeout(loadData,1500);
-  }
 }
 function exportExcel(){
   if(!girlsData.length){showToast('لا يوجد بيانات');return;}
