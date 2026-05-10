@@ -36,7 +36,7 @@ thead th.tc{background:var(--gDD);width:18px}
 thead th.ti{text-align:right;padding-right:8px;width:32%}
 thead th.tp{width:26px;font-size:10px;opacity:.85}
 thead th.td{width:6%}
-td.cc{background:#e8f6ee;color:var(--gD);font-weight:700;text-align:center;padding:3px 1px;border:1px solid #c8e8d4;writing-mode:vertical-rl;font-size:9px;vertical-align:middle}
+td.cc{background:#e8f6ee;color:var(--gD);font-weight:700;text-align:center;padding:3px 1px;border:1px solid #c8e8d4;writing-mode:vertical-lr;text-orientation:mixed;font-size:9px;vertical-align:middle;max-width:18px;overflow:hidden}
 td.ic{font-size:10.5px;color:var(--tx);padding:4px 6px 4px 3px;border:1px solid #ede7db;background:var(--sf);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 td.pc{text-align:center;color:var(--mu);font-size:11px;padding:5px 2px;border:1px solid #ede7db;background:#faf8f3;font-weight:500}
 td.cell{text-align:center;padding:2px;border:1px solid #ede7db;cursor:pointer;user-select:none;background:var(--sf);font-size:14px;font-weight:700;transition:background .1s;height:32px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
@@ -153,7 +153,9 @@ function build(){
     const tr=document.createElement('tr');
     if(r.cat!==lastCat){
       const span=ROWS.filter(x=>x.cat===r.cat).length;
-      const td=document.createElement('td');td.className='cc';td.rowSpan=span;td.textContent=r.cat;
+      const td=document.createElement('td');td.className='cc';td.rowSpan=span;
+      const abbr={'الأذكار':'أذكار','القرآن':'قرآن','القيام':'قيام','الصلاة':'صلاة','الذكر وصلاة على الرسول':'ذكر'};
+      td.textContent=abbr[r.cat]||r.cat;
       tr.appendChild(td);lastCat=r.cat;
     }
     const ti=document.createElement('td');ti.className='ic';ti.textContent=r.ibada;tr.appendChild(ti);
