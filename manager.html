@@ -114,7 +114,7 @@ body{font-family:'Amiri',system-ui,Tahoma,sans-serif;background:var(--bg);color:
 <div id="toast"></div>
 <script>
 const SHEET_ID='1Xy0Yr7jSxCpozMz8b93CifgoD8oPKSMdk-6dmZoxbRg';
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxfCRfQzYru7s13V15A5l8K64CZcOghMqnt1x8Yj_l_3Ws8izBr-gRFwaqlP3ke7VY/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbywvYGhVDPUe7M95XwFbax6mSSP8LSgBEt9OB1f6uVfJ5fHjawxn_sxrXBcnLZEYbTv/exec';
 const ROWS=[
   {cat:'الأذكار',ibada:'أذكار الصباح',pts:1},
   {cat:'الأذكار',ibada:'أذكار المساء',pts:1},
@@ -299,7 +299,7 @@ async function sendReply(name, gi){
   const reply=document.getElementById('reply_'+gi).value.trim();
   if(!reply){showToast('اكتبي الرد أولاً');return;}
   try{
-    await fetch('https://script.google.com/macros/s/AKfycbxfCRfQzYru7s13V15A5l8K64CZcOghMqnt1x8Yj_l_3Ws8izBr-gRFwaqlP3ke7VY/exec',{
+    await fetch('https://script.google.com/macros/s/AKfycbywvYGhVDPUe7M95XwFbax6mSSP8LSgBEt9OB1f6uVfJ5fHjawxn_sxrXBcnLZEYbTv/exec',{
       method:'POST',
       mode:'no-cors',
       body:JSON.stringify({type:'reply',name,reply}),
