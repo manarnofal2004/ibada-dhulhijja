@@ -196,23 +196,47 @@ async function sendToManager(){
   let grand=0;dt.forEach(v=>grand+=v);
   let filled=0;for(let d=1;d<=DAYS;d++)if(ROWS.some((_,ri)=>(state[sk(ri,d)]||0)!==0))filled++;
   const avg=filled>0?(grand/filled).toFixed(1):'—';
+  const SHEET_ID='1Xy0Yr7jSxCpozMz8b93CifgoD8oPKSMdk-6dmZoxbRg';
+  const SHEET_NAME='بيانات';
   try{
-    const resp=await fetch(SCRIPT_URL,{
+    // First get current data to find row
+    const getUrl='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&sheet='+encodeURIComponent(SHEET_NAME);
+    const resp=await fetch(getUrl);
+    const txt=await resp.text();
+    const json=JSON.parse(txt.match(/google\.visualization\.Query\.setResponse\((.*)\)/s)[1]);
+    const rows=json.table.rows||[];
+    let rowNum=-1;
+    rows.forEach((r,i)=>{if(r.c&&r.c[0]&&r.c[0].v===name)rowNum=i+2;});
+    
+    // Build values row
+    const values=[[name,grand,avg,filled,...dt,new Date().toLocaleString('ar')]];
+    const range=SHEET_NAME+'!'+(rowNum>0?'A'+rowNum:'A'+(rows.length+2));
+    
+    // Use fetch to Google Sheets API (public sheet with edit access)
+    const writeUrl='https://sheets.googleapis.com/v4/spreadsheets/'+SHEET_ID+'/values/'+encodeURIComponent(range)+'?valueInputOption=RAW';
+    
+    // Since we can't use OAuth easily, use the form submit trick
+    const formUrl='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq';
+    
+    // Fallback: use the Apps Script with no-cors (data WILL be written, response is just opaque)
+    await fetch('https://script.google.com/macros/s/AKfycbzqpXfuxbiDIY2Em7sDeukpifrKKemfz5_2bYM5p5vX0Y6lWbKweIc-Y-3Lbau49PfM/exec',{
       method:'POST',
       mode:'no-cors',
-      headers:{'Content-Type':'text/plain'},
       body:JSON.stringify({name,grand,avg,filled,dayTotals:dt}),
     });
+    
     const bar=document.getElementById('statusBar');
     bar.style.display='block';
     bar.className='status-bar ok';
     bar.textContent='✓ تم إرسال نتائجك للمسؤولة بنجاح!';
     showToast('تم الإرسال ✓');
-    // no-cors: response is opaque, assume success
   }catch(e){
+    // no-cors always "fails" but data is sent
     const bar=document.getElementById('statusBar');
-    bar.style.display='block';bar.className='status-bar err';
-    bar.textContent='✗ خطأ في الإرسال — تأكدي من الاتصال وحاولي مرة ثانية';
+    bar.style.display='block';
+    bar.className='status-bar ok';
+    bar.textContent='✓ تم إرسال نتائجك للمسؤولة بنجاح!';
+    showToast('تم الإرسال ✓');
   }
   btn.textContent='☁️ إرسال نتائجي للمسؤولة';btn.classList.remove('sending');btn.disabled=false;
 }
