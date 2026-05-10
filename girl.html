@@ -243,6 +243,7 @@ function build(){
   buildNotesRow(tb);
   recalc();
 }
+var CK='dhulhijja_custom_v1';
 function getCustomVals(){
   try{return JSON.parse(localStorage.getItem(CK)||'{}')}catch(e){return {};}
 }
