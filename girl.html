@@ -114,6 +114,7 @@ tr.tr-day td.lbl{text-align:right;padding-right:8px;background:var(--gDD);font-s
   <button class="btn btn-report" onclick="openReport()">📊 عرض تقريري</button>
 </div>
 <p class="note">البيانات تُحفظ تلقائياً على جهازك ✓<br>اضغطي "إرسال" بعد كل يوم لتحديث نتائجك عند المسؤولة</p>
+<p style="text-align:center;margin-top:8px"><button onclick="guestMode()" style="background:none;border:none;color:var(--mu);font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit">👤 وضع الضيف (لبنت ثانية على نفس الجهاز)</button></p>
 <div id="toast"></div>
 
 <script>
@@ -123,13 +124,13 @@ const ROWS=[
   {cat:'الأذكار',ibada:'أذكار المساء',pts:1},
   {cat:'الأذكار',ibada:'أذكار اليوم',pts:5},
   {cat:'القرآن',ibada:'سورة البقرة',pts:24},
-  {cat:'القرآن',ibada:'جزء قرآن',pts:1},
-  {cat:'القرآن',ibada:'سماع قرآن (صفحة)',pts:1},
+  {cat:'القرآن',ibada:'جزء قرآن',pts:10,custom:true,unit:'جزء'},
+  {cat:'القرآن',ibada:'سماع قرآن (صفحة)',pts:1,custom:true,unit:'صفحة'},
   {cat:'القيام',ibada:'ركعتين حاجة',pts:5},
-  {cat:'القيام',ibada:'قضاء فروض (فرض)',pts:3},
+  {cat:'القيام',ibada:'قضاء فروض (فرض)',pts:3,custom:true,unit:'فرض'},
   {cat:'القيام',ibada:'قيام (غير حاجة والقضاء)',pts:2},
-  {cat:'الصلاة',ibada:'٨ ركعات ضحى',pts:8},
-  {cat:'الصلاة',ibada:'٦ ركعات أوابين',pts:6},
+  {cat:'الصلاة',ibada:'٨ ركعات ضحى',pts:1,custom:true,unit:'ركعة'},
+  {cat:'الصلاة',ibada:'٦ ركعات أوابين',pts:1,custom:true,unit:'ركعة'},
   {cat:'الصلاة',ibada:'فروض الصلاة',pts:5},
   {cat:'الصلاة',ibada:'سنن الصلوات',pts:5},
   {cat:'الذكر وصلاة على الرسول',ibada:'٢٠٠ صلاة على الرسول',pts:20},
@@ -201,11 +202,36 @@ function build(){
       tr.appendChild(td);lastCat=r.cat;
     }
     const ti=document.createElement('td');ti.className='ic';ti.textContent=r.ibada;tr.appendChild(ti);
-    const tp=document.createElement('td');tp.className='pc';tp.textContent=r.pts;tr.appendChild(tp);
+    const tp=document.createElement('td');tp.className='pc';
+    tp.textContent=r.custom?'×'+r.pts:r.pts;
+    tp.title=r.custom?'نقطة لكل '+r.unit:'';
+    tr.appendChild(tp);
     for(let d=1;d<=DAYS;d++){
-      const tc=document.createElement('td');tc.className='cell';
-      applyCell(tc,state[sk(ri,d)]||0);
-      tc.onclick=()=>toggle(ri,d,tc);
+      const tc=document.createElement('td');
+      if(r.custom){
+        tc.style.cssText='padding:1px;border:1px solid #ede7db;background:#fffdf5;';
+        const customVals=getCustomVals();
+        const val=customVals[sk(ri,d)]||'';
+        const inp=document.createElement('input');
+        inp.type='number';inp.min='0';inp.max='999';
+        inp.value=val;
+        inp.placeholder='0';
+        inp.style.cssText='width:100%;height:32px;border:none;background:none;text-align:center;font-size:12px;font-family:inherit;outline:none;color:#1a6b3c;font-weight:700;-moz-appearance:textfield;';
+        const ri2=ri,d2=d;
+        inp.oninput=function(){
+          const cv=getCustomVals();
+          const n=parseInt(this.value)||0;
+          if(n>0)cv[sk(ri2,d2)]=n;
+          else delete cv[sk(ri2,d2)];
+          localStorage.setItem(CK,JSON.stringify(cv));
+          recalc();
+        };
+        tc.appendChild(inp);
+      } else {
+        tc.className='cell';
+        applyCell(tc,state[sk(ri,d)]||0);
+        tc.onclick=()=>toggle(ri,d,tc);
+      }
       tr.appendChild(tc);
     }
     tb.appendChild(tr);
@@ -217,9 +243,18 @@ function build(){
   buildNotesRow(tb);
   recalc();
 }
+function getCustomVals(){
+  try{return JSON.parse(localStorage.getItem(CK)||'{}')}catch(e){return {};}
+}
 function getDayTotals(){
+  const cv=getCustomVals();
   return Array.from({length:DAYS},(_,i)=>{
-    let t=0;ROWS.forEach((_,ri)=>{if((state[sk(ri,i+1)]||0)===1)t+=ROWS[ri].pts});return t;
+    let t=0;
+    ROWS.forEach((r,ri)=>{
+      if(r.custom){t+=(cv[sk(ri,i+1)]||0)*r.pts;}
+      else if((state[sk(ri,i+1)]||0)===1)t+=r.pts;
+    });
+    return t;
   });
 }
 function recalc(){
@@ -397,8 +432,24 @@ async function submitDayNote(){
   }catch(e){showToast('تم الحفظ ✓');}
 }
 async function checkReply(){}
+function guestMode(){
+  if(!confirm('وضع الضيف: ستُفتح صفحة جديدة بدون أي بيانات محفوظة. البيانات الحالية ستبقى كما هي.'))return;
+  const url=location.href.split('?')[0]+'?guest=1&t='+Date.now();
+  window.open(url,'_blank');
+}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 document.getElementById('userName').addEventListener('input',save);
+// Guest mode: use session storage
+if(new URLSearchParams(location.search).get('guest')){
+  const orig_get=localStorage.getItem.bind(localStorage);
+  const orig_set=localStorage.setItem.bind(localStorage);
+  const guestData={};
+  Object.defineProperty(window,'localStorage',{get:()=>({
+    getItem:k=>guestData[k]||null,
+    setItem:(k,v)=>{guestData[k]=v;},
+    removeItem:k=>delete guestData[k]
+  })});
+}
 load();build();
 </script>
 </body>
