@@ -352,6 +352,7 @@ function openReport(){
 }
 
 let currentNoteDay=0;
+const SNK='dhulhijja_notes_v1';
 function getSavedNotes(){
   try{return JSON.parse(localStorage.getItem(SNK)||'{}')}catch(e){return {};}
 }
