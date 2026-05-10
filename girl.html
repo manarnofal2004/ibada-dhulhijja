@@ -161,6 +161,33 @@ function toggle(ri,d,td){
   if(next===0)delete state[k];else state[k]=next;
   applyCell(td,next);save();recalc();
 }
+function buildNotesRow(tb){
+  try{
+    const tnr=document.createElement('tr');
+    const nlbl=document.createElement('td');
+    nlbl.className='lbl';nlbl.colSpan=3;
+    nlbl.style.cssText='background:#fff9e6;color:#856404;font-size:10px;text-align:right;padding-right:8px';
+    nlbl.textContent='ملاحظة اليوم';
+    tnr.appendChild(nlbl);
+    const saved=getSavedNotes();
+    for(let d=1;d<=DAYS;d++){
+      const td=document.createElement('td');
+      td.style.cssText='background:#fff9e6;padding:2px;border:1px solid #f0c040';
+      if(saved[d]){
+        td.innerHTML='<div style="font-size:8px;color:#856404;text-align:center;padding:2px;line-height:1.2;overflow:hidden;max-height:28px" title="'+saved[d].text+'">'+saved[d].text.substring(0,6)+'</div>';
+      } else {
+        const btn=document.createElement('button');
+        btn.textContent='+';
+        btn.style.cssText='width:100%;height:28px;background:none;border:none;color:#b8860b;font-size:16px;cursor:pointer;font-weight:700';
+        const day=d;
+        btn.onclick=function(){openNoteModal(day);};
+        td.appendChild(btn);
+      }
+      tnr.appendChild(td);
+    }
+    tb.appendChild(tnr);
+  }catch(ex){console.error('notes row error:',ex);}
+}
 function build(){
   const tb=document.getElementById('tbody');tb.innerHTML='';
   let lastCat='';
@@ -187,25 +214,7 @@ function build(){
   const lbl=document.createElement('td');lbl.className='lbl';lbl.colSpan=3;lbl.textContent='مجموع اليوم';tf.appendChild(lbl);
   for(let d=1;d<=DAYS;d++){const td=document.createElement('td');td.id='dt'+d;tf.appendChild(td);}
   tb.appendChild(tf);
-  // Notes row
-  const tnr=document.createElement('tr');
-  const nlbl=document.createElement('td');nlbl.className='lbl';nlbl.colSpan=3;nlbl.style.cssText='background:#fff9e6;color:#856404;font-size:10px;text-align:right;padding-right:8px';nlbl.textContent='ملاحظة اليوم';tnr.appendChild(nlbl);
-  for(let d=1;d<=DAYS;d++){
-    const td=document.createElement('td');td.style.cssText='background:#fff9e6;padding:2px;border:1px solid #f0c040';
-    const saved=getSavedNotes();
-    if(saved[d]){
-      td.innerHTML='<div style="font-size:8px;color:#856404;text-align:center;padding:2px;line-height:1.2;overflow:hidden;max-height:28px">'+saved[d].text+'</div>';
-      td.title=saved[d].text;
-    } else {
-      const btn=document.createElement('button');
-      btn.textContent='+';
-      btn.style.cssText='width:100%;height:28px;background:none;border:none;color:#b8860b;font-size:14px;cursor:pointer;font-weight:700';
-      btn.onclick=(()=>{const day=d;return()=>openNoteModal(day);})();
-      td.appendChild(btn);
-    }
-    tnr.appendChild(td);
-  }
-  tb.appendChild(tnr);
+  buildNotesRow(tb);
   recalc();
 }
 function getDayTotals(){
