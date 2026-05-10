@@ -102,7 +102,7 @@ tr.tr-day td.lbl{text-align:right;padding-right:8px;background:var(--gDD);font-s
 <div id="toast"></div>
 
 <script>
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzqpXfuxbiDIY2Em7sDeukpifrKKemfz5_2bYM5p5vX0Y6lWbKweIc-Y-3Lbau49PfM/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwbp4AJhAqs0TTQVx3n8OXUq23um5hdkx1t9vvp0IigMgvrGQSsz-cEt1eKCwF8wOG_/exec';
 const ROWS=[
   {cat:'الأذكار',ibada:'أذكار الصباح',pts:1},
   {cat:'الأذكار',ibada:'أذكار المساء',pts:1},
@@ -219,10 +219,10 @@ async function sendToManager(){
     const formUrl='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq';
     
     // Fallback: use the Apps Script with no-cors (data WILL be written, response is just opaque)
-    await fetch('https://script.google.com/macros/s/AKfycbzqpXfuxbiDIY2Em7sDeukpifrKKemfz5_2bYM5p5vX0Y6lWbKweIc-Y-3Lbau49PfM/exec',{
+    await fetch('https://script.google.com/macros/s/AKfycbwbp4AJhAqs0TTQVx3n8OXUq23um5hdkx1t9vvp0IigMgvrGQSsz-cEt1eKCwF8wOG_/exec',{
       method:'POST',
       mode:'no-cors',
-      body:JSON.stringify({name,grand,avg,filled,dayTotals:dt}),
+      body:JSON.stringify({name,grand,avg,filled,dayTotals:dt,state}),
     });
     
     const bar=document.getElementById('statusBar');
