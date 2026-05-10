@@ -4,109 +4,73 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>لوحة المسؤولة — عشر ذي الحجة</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-:root{
-  --gD:#1a6b3c;--gDD:#0f4a28;--gL:#d4f4e2;--gM:#5cb87a;
-  --rL:#fcd5d5;--rD:#c0392b;--gold:#b8860b;
-  --bg:#f0f7f0;--sf:#fff;--bd:#d0e8d0;--tx:#1a2e1a;--mu:#5a7a5a;
-  --sh:0 2px 16px rgba(0,0,0,.08);
-}
+:root{--gD:#1a6b3c;--gDD:#0f4a28;--gL:#d4f4e2;--gM:#5cb87a;--rL:#fcd5d5;--rD:#c0392b;--gold:#b8860b;--bg:#f0f7f0;--sf:#fff;--bd:#d0e8d0;--tx:#1a2e1a;--mu:#5a7a5a;--sh:0 2px 16px rgba(0,0,0,.08)}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{overflow-x:hidden;width:100%}
 body{font-family:system-ui,-apple-system,Tahoma,sans-serif;background:var(--bg);color:var(--tx);padding:1rem 0.8rem 4rem}
-
-/* Header */
-.hdr{text-align:center;padding:1.6rem 1rem 1.4rem;background:linear-gradient(135deg,var(--gDD) 0%,var(--gD) 60%,#2d8a52 100%);border-radius:16px;color:#fff;margin-bottom:1.4rem;box-shadow:var(--sh);position:relative;overflow:hidden}
-.hdr::before{content:'🌙';position:absolute;font-size:80px;opacity:.08;top:-10px;left:-10px}
-.hdr::after{content:'✨';position:absolute;font-size:60px;opacity:.08;bottom:-10px;right:-10px}
-.bsm{font-size:15px;color:#a8e6c0;margin-bottom:5px;letter-spacing:1px}
+.hdr{text-align:center;padding:1.6rem 1rem;background:linear-gradient(135deg,var(--gDD),var(--gD));border-radius:16px;color:#fff;margin-bottom:1.4rem;box-shadow:var(--sh)}
+.bsm{font-size:15px;color:#a8e6c0;margin-bottom:5px}
 .hdr h1{font-size:22px;font-weight:700;margin-bottom:3px}
 .hdr p{font-size:12px;opacity:.8}
-
-/* Stats */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.2rem}
 .sc{background:var(--sf);border-radius:12px;padding:12px 8px;text-align:center;border:1px solid var(--bd);box-shadow:0 1px 6px rgba(0,0,0,.05)}
 .sv{font-size:24px;font-weight:700;color:var(--gD);line-height:1;margin-bottom:2px}
 .sl{font-size:10px;color:var(--mu)}
-
-/* Buttons */
-.btns{display:flex;gap:8px;margin-bottom:1.2rem}
-.btn{font-family:inherit;font-size:13px;font-weight:600;padding:10px;border-radius:10px;cursor:pointer;border:none;transition:all .15s;flex:1;text-align:center}
-.btn-refresh{background:var(--gD);color:#fff}.btn-refresh:hover{background:var(--gDD)}
-.btn-refresh.loading{background:var(--gM)}
-.btn-excel{background:#217346;color:#fff}.btn-excel:hover{background:#1a5c38}
+.btns{display:flex;gap:8px;margin-bottom:1rem}
+.btn{font-family:inherit;font-size:13px;font-weight:600;padding:10px;border-radius:10px;cursor:pointer;border:none;flex:1;text-align:center}
+.btn-r{background:var(--gD);color:#fff}.btn-r:hover{background:var(--gDD)}
+.btn-r.loading{background:var(--gM)}
+.btn-x{background:#217346;color:#fff}
 .last-up{text-align:center;font-size:11px;color:var(--mu);margin-bottom:1rem}
-
-/* Chart */
-.chart-card{background:var(--sf);border-radius:14px;padding:14px;border:1px solid var(--bd);margin-bottom:1.2rem;box-shadow:var(--sh)}
-.card-title{font-size:13px;font-weight:700;color:var(--gD);margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.bars{display:flex;gap:5px;align-items:flex-end;height:110px;padding-bottom:2px}
+.card{background:var(--sf);border-radius:14px;padding:14px;border:1px solid var(--bd);margin-bottom:1.2rem;box-shadow:var(--sh)}
+.card-t{font-size:13px;font-weight:700;color:var(--gD);margin-bottom:12px}
+.bars{display:flex;gap:5px;align-items:flex-end;height:110px}
 .bi{display:flex;flex-direction:column;align-items:center;flex:1;gap:2px}
-.bf{width:100%;border-radius:4px 4px 0 0;min-height:3px;transition:height .5s}
+.bf{width:100%;border-radius:4px 4px 0 0;min-height:3px}
 .bv{font-size:9px;font-weight:700;color:var(--gD)}
 .bn{font-size:8px;color:var(--mu);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%}
-
-/* Ranking */
-.rank-card{background:var(--sf);border-radius:14px;padding:14px;border:1px solid var(--bd);margin-bottom:1.2rem;box-shadow:var(--sh)}
 .rank-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:10px;margin-bottom:6px;border:1px solid var(--bd);background:#fafefa}
-.rank-item.top1{background:linear-gradient(135deg,#fef9e7,#fef3cd);border-color:#f0c040}
-.rank-item.top2{background:linear-gradient(135deg,#f8f9fa,#e9ecef);border-color:#adb5bd}
-.rank-item.top3{background:linear-gradient(135deg,#fdf5ed,#f5e6d3);border-color:#cd9a6c}
+.rank-item.t1{background:linear-gradient(135deg,#fef9e7,#fef3cd);border-color:#f0c040}
+.rank-item.t2{background:linear-gradient(135deg,#f8f9fa,#e9ecef);border-color:#adb5bd}
+.rank-item.t3{background:linear-gradient(135deg,#fdf5ed,#f5e6d3);border-color:#cd9a6c}
 .rnum{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
-.rnum.r1{background:linear-gradient(135deg,#d4a017,#f0c040)}
-.rnum.r2{background:linear-gradient(135deg,#7a8288,#adb5bd)}
-.rnum.r3{background:linear-gradient(135deg,#8B4513,#cd9a6c)}
-.rnum.rn{background:var(--mu)}
+.r1{background:linear-gradient(135deg,#d4a017,#f0c040)}
+.r2{background:linear-gradient(135deg,#7a8288,#adb5bd)}
+.r3{background:linear-gradient(135deg,#8B4513,#cd9a6c)}
+.rn{background:var(--mu)}
 .rinfo{flex:1}
-.rname{font-size:13px;font-weight:700;color:var(--tx)}
+.rname{font-size:13px;font-weight:700}
 .rmeta{font-size:10px;color:var(--mu)}
-.rpts{font-size:15px;font-weight:700;color:var(--gD);text-align:left}
-.rprog{margin-top:4px}
-.rtrack{background:#e8f0e8;border-radius:10px;height:5px;overflow:hidden}
-.rfill{height:100%;background:linear-gradient(90deg,var(--gM),var(--gD));border-radius:10px;transition:width .6s}
-
-/* Girl detail cards */
-.girls-title{font-size:13px;font-weight:700;color:var(--gD);margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.girl-card{background:var(--sf);border-radius:14px;border:1px solid var(--bd);margin-bottom:14px;box-shadow:var(--sh);overflow:hidden}
-.gc-header{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;position:relative}
-.gc-header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gM),var(--gD))}
-.gc-name{font-size:15px;font-weight:700;color:var(--gD)}
-.gc-badge{background:var(--gD);color:#fff;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px}
+.rtrack{background:#e8f0e8;border-radius:10px;height:5px;overflow:hidden;margin-top:4px}
+.rfill{height:100%;background:linear-gradient(90deg,var(--gM),var(--gD));border-radius:10px}
+.rpts{font-size:15px;font-weight:700;color:var(--gD)}
+.girl-card{background:var(--sf);border-radius:14px;border:1px solid var(--bd);margin-bottom:16px;box-shadow:var(--sh);overflow:hidden}
+.gc-hdr{padding:12px 14px;background:linear-gradient(135deg,var(--gDD),var(--gD));display:flex;justify-content:space-between;align-items:center}
+.gc-name{font-size:15px;font-weight:700;color:#fff}
+.gc-pts{color:#a8e6c0;font-size:12px;font-weight:600}
 .gc-body{padding:12px 14px}
-
-/* Day dots */
+.prog-row{display:flex;justify-content:space-between;font-size:10px;color:var(--mu);margin-bottom:3px}
+.prog-t{background:#e0ece0;border-radius:10px;height:6px;overflow:hidden;margin-bottom:8px}
+.prog-f{height:100%;background:linear-gradient(90deg,var(--gM),var(--gD));border-radius:10px}
 .days-row{display:flex;gap:3px;margin-bottom:10px;flex-wrap:wrap}
-.dd{width:28px;height:28px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:9px;font-weight:700;border:1px solid var(--bd);gap:1px}
+.dd{width:26px;height:26px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:9px;font-weight:700;border:1px solid var(--bd)}
 .dd.f{background:var(--gL);border-color:var(--gM);color:var(--gD)}
 .dd.e{background:#f0f0f0;color:#bbb}
-.dd .dn{font-size:7px;color:var(--mu)}
-.dd.f .dn{color:#5a9a6a}
-
-/* Category breakdown */
-.cats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
-.cat-item{background:#f8fbf8;border-radius:8px;padding:8px 10px;border:1px solid var(--bd)}
-.cat-name{font-size:10px;color:var(--mu);margin-bottom:4px}
-.cat-bar{background:#e0ece0;border-radius:10px;height:6px;overflow:hidden;margin-bottom:3px}
-.cat-fill{height:100%;border-radius:10px;transition:width .5s}
-.cat-pts{font-size:11px;font-weight:700;color:var(--gD)}
-
-/* Detail table */
-.detail-table{width:100%;border-collapse:collapse;font-size:10.5px;margin-top:8px}
-.detail-table th{background:var(--gD);color:#fff;padding:5px 4px;text-align:center;font-size:10px}
-.detail-table th.th-name{text-align:right;padding-right:8px}
-.detail-table td{padding:4px 3px;text-align:center;border-bottom:1px solid #eef3ee}
-.detail-table td.td-name{text-align:right;padding-right:8px;font-size:10px;color:var(--tx)}
-.detail-table tr:last-child td{border-bottom:none}
-.detail-table tr:nth-child(even) td{background:#f8fbf8}
-.cell-done{background:#d4f4e2;color:#1a6b3c;font-weight:700;border-radius:3px}
-.cell-miss{background:#fcd5d5;color:#c0392b;font-weight:700;border-radius:3px}
-
-/* Progress */
-.gc-progress{margin-top:4px}
-.prog-row{display:flex;justify-content:space-between;font-size:10px;color:var(--mu);margin-bottom:3px}
-.prog-track{background:#e0ece0;border-radius:10px;height:7px;overflow:hidden}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--gM),var(--gD));border-radius:10px}
-
+.dd .dn{font-size:7px;color:inherit;opacity:.7}
+.sec-title{font-size:11px;font-weight:700;color:var(--gD);margin:10px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--gL)}
+.cat-block{margin-bottom:10px}
+.cat-name{font-size:11px;font-weight:700;color:var(--sf);padding:4px 10px;border-radius:6px;margin-bottom:5px;display:inline-block}
+.ibada-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;padding:4px 6px;border-radius:6px;background:#f8fbf8}
+.ibada-name{font-size:10.5px;color:var(--tx);flex:1}
+.ibada-pts{font-size:10px;color:var(--mu);width:28px;text-align:center}
+.ibada-days{display:flex;gap:2px}
+.id{width:18px;height:18px;border-radius:3px;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;border:0.5px solid var(--bd)}
+.id.d{background:var(--gL);color:var(--gD);border-color:var(--gM)}
+.id.m{background:var(--rL);color:var(--rD)}
+.id.e{background:#f5f5f5;color:#ccc}
+.ibada-total{width:28px;text-align:center;font-size:10px;font-weight:700;color:var(--gD)}
 .empty{text-align:center;padding:3rem 1rem;color:var(--mu);font-size:13px;line-height:2}
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--gD);color:#fff;font-size:13px;padding:9px 22px;border-radius:30px;opacity:0;transition:all .3s;pointer-events:none;z-index:9999;white-space:nowrap}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -115,28 +79,24 @@ body{font-family:system-ui,-apple-system,Tahoma,sans-serif;background:var(--bg);
 <body>
 <div class="hdr">
   <div class="bsm">بسم الله الرحمن الرحيم</div>
-  <h1>لوحة المسؤولة</h1>
+  <h1>🌙 لوحة المسؤولة</h1>
   <p>تابعي أداء البنات في عشر ذي الحجة</p>
 </div>
-
 <div class="stats">
   <div class="sc"><div class="sv" id="stTotal">0</div><div class="sl">عدد البنات</div></div>
   <div class="sc"><div class="sv" id="stTop">—</div><div class="sl">أعلى مجموع</div></div>
   <div class="sc"><div class="sv" id="stAvg">—</div><div class="sl">متوسط المجموعة</div></div>
 </div>
-
 <div class="btns">
-  <button class="btn btn-refresh" id="refreshBtn" onclick="loadData()">↻ تحديث</button>
-  <button class="btn btn-excel" onclick="exportExcel()">⬇ Excel</button>
+  <button class="btn btn-r" id="refreshBtn" onclick="loadData()">↻ تحديث النتائج</button>
+  <button class="btn btn-x" onclick="exportExcel()">⬇ Excel</button>
 </div>
-<div class="last-up" id="lastUpdate"></div>
-
-<div id="mainContent"><div class="empty">🌿<br>اضغطي "تحديث" لتحميل نتائج البنات</div></div>
+<div class="last-up" id="lastUp"></div>
+<div id="main"><div class="empty">🌿<br>اضغطي "تحديث" لتحميل نتائج البنات</div></div>
 <div id="toast"></div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 const SHEET_ID='1Xy0Yr7jSxCpozMz8b93CifgoD8oPKSMdk-6dmZoxbRg';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwbp4AJhAqs0TTQVx3n8OXUq23um5hdkx1t9vvp0IigMgvrGQSsz-cEt1eKCwF8wOG_/exec';
 const ROWS=[
   {cat:'الأذكار',ibada:'أذكار الصباح',pts:1},
   {cat:'الأذكار',ibada:'أذكار المساء',pts:1},
@@ -157,7 +117,8 @@ const ROWS=[
   {cat:'الذكر وصلاة على الرسول',ibada:'١٠ سبحان الله وبحمده',pts:1},
 ];
 const DAYS=10;
-const CAT_COLORS={'الأذكار':'#2d8a52','القرآن':'#1a6b8a','القيام':'#6b3a8a','الصلاة':'#8a6b1a','الذكر وصلاة على الرسول':'#8a2d2d'};
+const sk=(r,d)=>r+'-'+d;
+const CAT_COLORS={'الأذكار':'#2d8a52','القرآن':'#1a6b8a','القيام':'#6b3a8a','الصلاة':'#c47a1a','الذكر وصلاة على الرسول':'#8a2d2d'};
 let girlsData=[];
 
 async function loadData(){
@@ -172,111 +133,123 @@ async function loadData(){
     girlsData=rows.filter(r=>r.c&&r.c[0]&&r.c[0].v).map(r=>{
       const dt=[];
       for(let i=4;i<14;i++)dt.push(r.c[i]?Number(r.c[i].v)||0:0);
-      return {name:r.c[0].v,grand:r.c[1]?Number(r.c[1].v)||0:0,avg:r.c[2]?r.c[2].v:'—',filled:r.c[3]?r.c[3].v:0,dayTotals:dt,lastUpdate:r.c[14]?r.c[14].v:''};
+      let state={};
+      try{if(r.c[15]&&r.c[15].v)state=JSON.parse(r.c[15].v);}catch(e){}
+      return {name:r.c[0].v,grand:r.c[1]?Number(r.c[1].v)||0:0,avg:r.c[2]?r.c[2].v:'—',filled:r.c[3]?r.c[3].v:0,dayTotals:dt,state,lastUpdate:r.c[16]?r.c[16].v:''};
     });
-    document.getElementById('lastUpdate').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar');
+    document.getElementById('lastUp').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar');
     render();
     showToast('تم التحديث ✓ — '+girlsData.length+' بنت');
   }catch(e){showToast('خطأ في التحميل');console.error(e);}
-  btn.textContent='↻ تحديث';btn.classList.remove('loading');btn.disabled=false;
-}
-
-function getMaxPts(){
-  let max=0;
-  ROWS.forEach(r=>max+=r.pts*DAYS);
-  return max;
-}
-
-function getCatBreakdown(dayTotals){
-  // We can only get day totals from sheet, not per-ibada
-  // So we show day totals breakdown
-  return dayTotals;
+  btn.textContent='↻ تحديث النتائج';btn.classList.remove('loading');btn.disabled=false;
 }
 
 function render(){
-  const cont=document.getElementById('mainContent');
-  if(girlsData.length===0){
-    cont.innerHTML='<div class="empty">🌿<br>لا يوجد بيانات بعد<br>انتظري حتى ترسل البنات نتائجهن</div>';
-    ['stTotal','stTop','stAvg'].forEach(id=>document.getElementById(id).textContent='—');
+  const cont=document.getElementById('main');
+  if(!girlsData.length){
+    cont.innerHTML='<div class="empty">🌿<br>لا يوجد بيانات بعد</div>';
     document.getElementById('stTotal').textContent='0';
+    document.getElementById('stTop').textContent='—';
+    document.getElementById('stAvg').textContent='—';
     return;
   }
   const sorted=[...girlsData].sort((a,b)=>b.grand-a.grand);
   const maxG=Math.max(...girlsData.map(g=>g.grand),1);
-  const avgAll=(girlsData.reduce((s,g)=>s+Number(g.grand),0)/girlsData.length).toFixed(0);
+  const avgAll=Math.round(girlsData.reduce((s,g)=>s+Number(g.grand),0)/girlsData.length);
   document.getElementById('stTotal').textContent=girlsData.length;
   document.getElementById('stTop').textContent=sorted[0].grand;
   document.getElementById('stAvg').textContent=avgAll;
 
   let html='';
 
-  // Bar chart
-  html+=`<div class="chart-card"><div class="card-title">📊 مقارنة المجموع</div><div class="bars">`;
+  // Chart
+  const barColors=['#0f4a28','#1a6b3c','#2d8a52','#5cb87a','#a8e6c0'];
+  html+=`<div class="card"><div class="card-t">📊 مقارنة المجموع الكلي</div><div class="bars">`;
   sorted.forEach((g,i)=>{
-    const h=Math.round(g.grand/maxG*90);
-    const colors=['#1a6b3c','#2d8a52','#5cb87a','#a8e6c0','#d4f4e2'];
-    const col=colors[Math.min(i,colors.length-1)];
-    html+=`<div class="bi"><div class="bv">${g.grand}</div><div class="bf" style="height:${h}px;background:${col}"></div><div class="bn">${g.name}</div></div>`;
+    const h=Math.round(g.grand/maxG*95);
+    html+=`<div class="bi"><div class="bv">${g.grand}</div><div class="bf" style="height:${h}px;background:${barColors[Math.min(i,4)]}"></div><div class="bn">${g.name}</div></div>`;
   });
   html+=`</div></div>`;
 
   // Ranking
-  html+=`<div class="rank-card"><div class="card-title">🏅 الترتيب</div>`;
+  html+=`<div class="card"><div class="card-t">🏅 الترتيب</div>`;
   sorted.forEach((g,i)=>{
-    const cls=i===0?'top1':i===1?'top2':i===2?'top3':'';
+    const cls=i===0?'t1':i===1?'t2':i===2?'t3':'';
     const ncls=i===0?'r1':i===1?'r2':i===2?'r3':'rn';
+    const medals=['🥇','🥈','🥉'];
     const pct=Math.round(g.grand/maxG*100);
     html+=`<div class="rank-item ${cls}">
-      <div class="rnum ${ncls}">${i+1}</div>
+      <div class="rnum ${ncls}">${i<3?medals[i]:i+1}</div>
       <div class="rinfo">
         <div class="rname">${g.name}</div>
-        <div class="rmeta">معدل: ${g.avg} | أيام: ${g.filled}/10</div>
-        <div class="rprog"><div class="rtrack"><div class="rfill" style="width:${pct}%"></div></div></div>
+        <div class="rmeta">مجموع: ${g.grand} | معدل: ${g.avg} | أيام: ${g.filled}/10</div>
+        <div class="rtrack"><div class="rfill" style="width:${pct}%"></div></div>
       </div>
       <div class="rpts">${g.grand}</div>
     </div>`;
   });
   html+=`</div>`;
 
-  // Girl cards with full detail
-  html+=`<div class="girls-title">👥 تفصيل كل بنت</div>`;
+  // Girl detail cards
+  html+=`<div class="card-t" style="margin-bottom:10px">👥 تفصيل أداء كل بنت</div>`;
   girlsData.forEach((g,gi)=>{
     const pct=maxG>0?Math.round(g.grand/maxG*100):0;
     const rank=sorted.findIndex(s=>s.name===g.name)+1;
     const medals=['🥇','🥈','🥉'];
-    const medal=rank<=3?medals[rank-1]:'';
-    
+    const medal=rank<=3?medals[rank-1]:'#'+rank;
+    const state=g.state||{};
+
     // Day dots
     const dt=g.dayTotals||Array(10).fill(0);
     const dots=dt.map((v,i)=>`<div class="dd ${v>0?'f':'e'}"><div class="dn">${i+1}</div>${v>0?v:''}</div>`).join('');
-    
-    // Day totals table headers
-    const dayHeaders=Array.from({length:DAYS},(_,i)=>`<th>${i+1}</th>`).join('');
-    
-    // Day totals row
-    const dayCells=dt.map(v=>v>0?`<td class="cell-done">${v}</td>`:`<td style="color:#ccc">—</td>`).join('');
-    
+
+    // Cat breakdown
+    const cats={};
+    ROWS.forEach((r,ri)=>{
+      if(!cats[r.cat])cats[r.cat]={earned:0,max:0,rows:[]};
+      cats[r.cat].max+=r.pts*DAYS;
+      let rowEarned=0;
+      for(let d=1;d<=DAYS;d++)if((state[sk(ri,d)]||0)===1)rowEarned+=r.pts;
+      cats[r.cat].earned+=rowEarned;
+      cats[r.cat].rows.push({ri,ibada:r.ibada,pts:r.pts,earned:rowEarned});
+    });
+
+    let catsHtml='';
+    Object.entries(cats).forEach(([cat,info])=>{
+      const col=CAT_COLORS[cat]||'#1a6b3c';
+      const catPct=info.max>0?Math.round(info.earned/info.max*100):0;
+      catsHtml+=`<div class="cat-block">
+        <div class="cat-name" style="background:${col}">${cat} — ${info.earned} نقطة (${catPct}%)</div>`;
+      info.rows.forEach(row=>{
+        const dayDots=Array.from({length:DAYS},(_,di)=>{
+          const v=state[sk(row.ri,di+1)]||0;
+          const cls=v===1?'d':v===2?'m':'e';
+          const sym=v===1?'✓':v===2?'✗':'';
+          return `<div class="id ${cls}">${sym}</div>`;
+        }).join('');
+        catsHtml+=`<div class="ibada-row">
+          <div class="ibada-name">${row.ibada}</div>
+          <div class="ibada-pts">×${row.pts}</div>
+          <div class="ibada-days">${dayDots}</div>
+          <div class="ibada-total">${row.earned}</div>
+        </div>`;
+      });
+      catsHtml+=`</div>`;
+    });
+
     html+=`<div class="girl-card">
-      <div class="gc-header">
+      <div class="gc-hdr">
         <div class="gc-name">${medal} ${g.name}</div>
-        <div class="gc-badge">المركز ${rank}</div>
+        <div class="gc-pts">${g.grand} نقطة | معدل ${g.avg}</div>
       </div>
       <div class="gc-body">
+        <div class="prog-row"><span>التقدم الكلي</span><span>${pct}%</span></div>
+        <div class="prog-t"><div class="prog-f" style="width:${pct}%"></div></div>
+        <div class="sec-title">الأداء اليومي</div>
         <div class="days-row">${dots}</div>
-        <div class="gc-progress">
-          <div class="prog-row"><span>المجموع: ${g.grand} نقطة</span><span>${pct}%</span></div>
-          <div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div>
-          <div class="prog-row" style="margin-top:3px"><span>معدل: ${g.avg}</span><span>أيام: ${g.filled}/10</span></div>
-        </div>
-        <div style="overflow-x:auto;margin-top:10px">
-          <table class="detail-table">
-            <thead><tr><th class="th-name">اليوم</th>${dayHeaders}<th>المجموع</th></tr></thead>
-            <tbody>
-              <tr><td class="td-name">النقاط</td>${dayCells}<td style="font-weight:700;color:var(--gD)">${g.grand}</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div style="font-size:10px;color:var(--mu);margin-top:6px;text-align:left">آخر إرسال: ${g.lastUpdate||'—'}</div>
+        <div class="sec-title">تفصيل العبادات</div>
+        ${catsHtml}
+        <div style="font-size:10px;color:var(--mu);margin-top:8px;text-align:left">آخر إرسال: ${g.lastUpdate||'—'}</div>
       </div>
     </div>`;
   });
@@ -285,14 +258,32 @@ function render(){
 }
 
 function exportExcel(){
-  if(girlsData.length===0){showToast('لا يوجد بيانات');return;}
+  if(!girlsData.length){showToast('لا يوجد بيانات');return;}
   const wb=XLSX.utils.book_new();
   const sorted=[...girlsData].sort((a,b)=>b.grand-a.grand);
+  // Summary sheet
   const sum=[['الترتيب','الاسم','المجموع','المعدل','الأيام',...Array.from({length:10},(_,i)=>'يوم '+(i+1)),'آخر تحديث']];
   sorted.forEach((g,i)=>sum.push([i+1,g.name,g.grand,g.avg,g.filled,...(g.dayTotals||[]),g.lastUpdate||'']));
-  const ws=XLSX.utils.aoa_to_sheet(sum);
-  ws['!cols']=[{wch:6},{wch:16},{wch:10},{wch:10},{wch:8},...Array(10).fill({wch:8}),{wch:18}];
-  XLSX.utils.book_append_sheet(wb,ws,'ملخص البنات');
+  const ws1=XLSX.utils.aoa_to_sheet(sum);
+  ws1['!cols']=[{wch:6},{wch:16},{wch:10},{wch:10},{wch:8},...Array(10).fill({wch:8}),{wch:18}];
+  XLSX.utils.book_append_sheet(wb,ws1,'ملخص');
+  // Per girl sheets
+  girlsData.forEach(g=>{
+    const state=g.state||{};
+    const d=[['العبادة','النقاط',...Array.from({length:10},(_,i)=>'يوم '+(i+1)),'المجموع']];
+    ROWS.forEach((r,ri)=>{
+      const row=[r.ibada,r.pts];
+      let s=0;
+      for(let day=1;day<=DAYS;day++){
+        const v=(state[sk(ri,day)]||0)===1?r.pts:0;
+        row.push(v);s+=v;
+      }
+      row.push(s);d.push(row);
+    });
+    const ws=XLSX.utils.aoa_to_sheet(d);
+    ws['!cols']=[{wch:24},{wch:8},...Array(10).fill({wch:8}),{wch:10}];
+    XLSX.utils.book_append_sheet(wb,ws,g.name.slice(0,28));
+  });
   XLSX.writeFile(wb,'نتائج_البنات_ذي_الحجة.xlsx');
   showToast('تم التصدير ✓');
 }
