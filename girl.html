@@ -54,7 +54,6 @@ tr.tr-day td.lbl{text-align:right;padding-right:8px;background:var(--gDD);font-s
 .btn-send{background:var(--gD);color:#fff}.btn-send:hover{background:var(--gDD)}
 .btn-send.sending{background:var(--gM)}
 .btn-report{background:#1a4a8a;color:#fff}.btn-report:hover{background:#153d73}
-.btn-chat{background:#2d6e9e;color:#fff;border-color:#2d6e9e}.btn-chat:hover{background:#245d87}
 .note{text-align:center;font-size:11px;color:var(--mu);line-height:1.7}
 .status-bar{text-align:center;font-size:12px;padding:8px;border-radius:8px;margin-bottom:8px;display:none}
 .status-bar.ok{background:var(--gL);color:var(--gD);border:1px solid var(--gM)}
@@ -96,25 +95,19 @@ tr.tr-day td.lbl{text-align:right;padding-right:8px;background:var(--gDD);font-s
   <div class="sc"><div class="sl">المعدل</div><div class="sv" id="avgVal">—</div></div>
   <div class="sc"><div class="sl">الأيام</div><div class="sv" id="filledVal">0/10</div></div>
 </div>
-<button class="btn btn-chat" onclick="openNotes()">💬 ملاحظة للمسؤولة <span id="noteBadge" style="display:none;background:#d4a017;color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-right:4px">✉️ رسالة جديدة</span></button>
-
-<div id="notesOverlay" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.45);align-items:flex-end">
-  <div style="background:var(--sf);border-radius:16px 16px 0 0;width:100%;max-height:80vh;display:flex;flex-direction:column">
-    <div style="background:var(--gD);padding:12px 16px;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center">
-      <span style="color:#fff;font-size:14px;font-weight:600">💬 رسائلنا</span>
-      <button onclick="document.getElementById('notesOverlay').style.display='none'" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer">✕</button>
+<div id="noteModal" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.45);align-items:center;justify-content:center">
+  <div style="background:var(--sf);border-radius:14px;width:90%;max-width:340px;overflow:hidden">
+    <div style="background:var(--gD);padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
+      <span id="modalTitle" style="color:#fff;font-size:14px;font-weight:600">ملاحظة اليوم</span>
+      <button onclick="document.getElementById('noteModal').style.display='none'" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer">✕</button>
     </div>
-    <div style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;min-height:120px">
-      <div id="girlNoteBox"></div>
-      <div id="managerNoteBox"></div>
-    </div>
-    <div style="padding:10px 12px;border-top:1px solid var(--bd)">
-      <textarea id="noteInput" placeholder="اكتبي ملاحظتك للمسؤولة..." style="width:100%;border:1.5px solid var(--bd);border-radius:10px;padding:8px 12px;font-family:inherit;font-size:13px;resize:none;height:52px;outline:none;direction:rtl;background:var(--sf);margin-bottom:6px"></textarea>
-      <button onclick="sendNote()" style="width:100%;background:var(--gD);color:#fff;border:none;border-radius:8px;padding:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer">إرسال ✓</button>
+    <div style="padding:14px">
+      <textarea id="dayNoteInput" placeholder="اكتبي ملاحظتك عن هذا اليوم..." style="width:100%;border:1.5px solid var(--bd);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:13px;resize:none;height:80px;outline:none;direction:rtl;background:var(--sf);margin-bottom:10px"></textarea>
+      <button onclick="submitDayNote()" style="width:100%;background:var(--gD);color:#fff;border:none;border-radius:8px;padding:11px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer">إرسال الملاحظة ✓</button>
+      <p style="font-size:10px;color:#aaa;text-align:center;margin-top:6px">⚠️ لا يمكن التعديل بعد الإرسال</p>
     </div>
   </div>
 </div>
-
 
 <div class="btns">
   <button class="btn btn-send" id="sendBtn" onclick="sendToManager()">☁️ إرسال نتائجي للمسؤولة</button>
@@ -124,7 +117,7 @@ tr.tr-day td.lbl{text-align:right;padding-right:8px;background:var(--gDD);font-s
 <div id="toast"></div>
 
 <script>
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwg1_1mK_ikW1QF9bHBa-3c0xQN3zqWEP8GB6MWQP6ES9kMKCee6isbmqzrWIuIFLl0/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbytrZcllplGnIAHS0B2rGh4HHUcsR6BZp4xzTNz0NkvrrB7Y7oR09gJgSwi2rVekRCl/exec';
 const ROWS=[
   {cat:'الأذكار',ibada:'أذكار الصباح',pts:1},
   {cat:'الأذكار',ibada:'أذكار المساء',pts:1},
@@ -194,6 +187,25 @@ function build(){
   const lbl=document.createElement('td');lbl.className='lbl';lbl.colSpan=3;lbl.textContent='مجموع اليوم';tf.appendChild(lbl);
   for(let d=1;d<=DAYS;d++){const td=document.createElement('td');td.id='dt'+d;tf.appendChild(td);}
   tb.appendChild(tf);
+  // Notes row
+  const tnr=document.createElement('tr');
+  const nlbl=document.createElement('td');nlbl.className='lbl';nlbl.colSpan=3;nlbl.style.cssText='background:#fff9e6;color:#856404;font-size:10px;text-align:right;padding-right:8px';nlbl.textContent='ملاحظة اليوم';tnr.appendChild(nlbl);
+  for(let d=1;d<=DAYS;d++){
+    const td=document.createElement('td');td.style.cssText='background:#fff9e6;padding:2px;border:1px solid #f0c040';
+    const saved=getSavedNotes();
+    if(saved[d]){
+      td.innerHTML='<div style="font-size:8px;color:#856404;text-align:center;padding:2px;line-height:1.2;overflow:hidden;max-height:28px">'+saved[d].text+'</div>';
+      td.title=saved[d].text;
+    } else {
+      const btn=document.createElement('button');
+      btn.textContent='+';
+      btn.style.cssText='width:100%;height:28px;background:none;border:none;color:#b8860b;font-size:14px;cursor:pointer;font-weight:700';
+      btn.onclick=(()=>{const day=d;return()=>openNoteModal(day);})();
+      td.appendChild(btn);
+    }
+    tnr.appendChild(td);
+  }
+  tb.appendChild(tnr);
   recalc();
 }
 function getDayTotals(){
@@ -243,7 +255,7 @@ async function sendToManager(){
     const formUrl='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq';
     
     // Fallback: use the Apps Script with no-cors (data WILL be written, response is just opaque)
-    await fetch('https://script.google.com/macros/s/AKfycbwg1_1mK_ikW1QF9bHBa-3c0xQN3zqWEP8GB6MWQP6ES9kMKCee6isbmqzrWIuIFLl0/exec',{
+    await fetch('https://script.google.com/macros/s/AKfycbytrZcllplGnIAHS0B2rGh4HHUcsR6BZp4xzTNz0NkvrrB7Y7oR09gJgSwi2rVekRCl/exec',{
       method:'POST',
       mode:'no-cors',
       body:JSON.stringify({name,grand,avg,filled,dayTotals:dt,state}),
@@ -339,49 +351,45 @@ function openReport(){
   ov.appendChild(cb);ov.appendChild(ct);document.body.appendChild(ov);
 }
 
-async function loadNotes(){
-  const name=document.getElementById('userName').value.trim();
-  if(!name)return;
-  try{
-    const url='https://docs.google.com/spreadsheets/d/1Xy0Yr7jSxCpozMz8b93CifgoD8oPKSMdk-6dmZoxbRg/gviz/tq?tqx=out:json&sheet='+encodeURIComponent('بيانات')+'&t='+Date.now();
-    const resp=await fetch(url);
-    const txt=await resp.text();
-    const json=JSON.parse(txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
-    const rows=json.table.rows||[];
-    const myRow=rows.find(r=>r.c&&r.c[0]&&r.c[0].v===name);
-    const myNote=myRow&&myRow.c[17]?myRow.c[17].v:'';
-    const mgrNote=myRow&&myRow.c[18]?myRow.c[18].v:'';
-    const gBox=document.getElementById('girlNoteBox');
-    const mBox=document.getElementById('managerNoteBox');
-    if(gBox&&myNote)gBox.innerHTML='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><div style="font-size:10px;color:#7a6a52">ملاحظتك</div><div style="background:#fff9e6;border:1px solid #f0c040;color:#856404;padding:8px 12px;border-radius:12px 12px 4px 12px;font-size:12px;max-width:88%">'+myNote+'</div></div>';
-    if(mBox&&mgrNote){
-      mBox.innerHTML='<div style="display:flex;flex-direction:column;align-items:flex-start;gap:2px"><div style="font-size:10px;color:#7a6a52">رسالة من المسؤولة</div><div style="background:#d4f4e2;border:1px solid #5cb87a;color:#1a6b3c;padding:8px 12px;border-radius:12px 12px 12px 4px;font-size:12px;max-width:88%">'+mgrNote+'</div></div>';
-      document.getElementById('noteBadge').style.display='inline';
-    }
-  }catch(e){}
+let currentNoteDay=0;
+function getSavedNotes(){
+  try{return JSON.parse(localStorage.getItem(SNK)||'{}')}catch(e){return {};}
 }
-function openNotes(){
-  const ov=document.getElementById('notesOverlay');
-  ov.style.display='flex';
-  document.getElementById('noteBadge').style.display='none';
-  loadNotes();
+function saveNoteLocally(day,text){
+  const n=getSavedNotes();n[day]={text,sent:false};
+  localStorage.setItem(SNK,JSON.stringify(n));
 }
-async function sendNote(){
+function openNoteModal(day){
   const name=document.getElementById('userName').value.trim();
   if(!name){showToast('أدخلي اسمك أولاً');return;}
-  const note=document.getElementById('noteInput').value.trim();
-  if(!note){showToast('اكتبي ملاحظتك أولاً');return;}
-  try{
-    await fetch('https://script.google.com/macros/s/AKfycbwg1_1mK_ikW1QF9bHBa-3c0xQN3zqWEP8GB6MWQP6ES9kMKCee6isbmqzrWIuIFLl0/exec',{method:'POST',mode:'no-cors',body:JSON.stringify({type:'noteGirl',name,note})});
-    document.getElementById('noteInput').value='';
-    showToast('تم إرسال الملاحظة ✓');
-    setTimeout(loadNotes,1000);
-  }catch(e){showToast('تم الإرسال ✓');}
+  currentNoteDay=day;
+  document.getElementById('modalTitle').textContent='ملاحظة اليوم '+day;
+  document.getElementById('dayNoteInput').value='';
+  const modal=document.getElementById('noteModal');
+  modal.style.display='flex';
 }
-async function checkReply(){await loadNotes();}
+async function submitDayNote(){
+  const name=document.getElementById('userName').value.trim();
+  const text=document.getElementById('dayNoteInput').value.trim();
+  if(!text){showToast('اكتبي الملاحظة أولاً');return;}
+  const day=currentNoteDay;
+  document.getElementById('noteModal').style.display='none';
+  // Save locally
+  const notes=getSavedNotes();
+  notes[day]={text,sent:true};
+  localStorage.setItem(SNK,JSON.stringify(notes));
+  // Rebuild notes row
+  build();
+  // Send to server
+  try{
+    await fetch('https://script.google.com/macros/s/AKfycbytrZcllplGnIAHS0B2rGh4HHUcsR6BZp4xzTNz0NkvrrB7Y7oR09gJgSwi2rVekRCl/exec',{method:'POST',mode:'no-cors',body:JSON.stringify({type:'dayNote',name,day,text})});
+    showToast('تم إرسال ملاحظة اليوم '+day+' ✓');
+  }catch(e){showToast('تم الحفظ ✓');}
+}
+async function checkReply(){}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 document.getElementById('userName').addEventListener('input',save);
-load();build();setTimeout(loadNotes,1500);
+load();build();
 </script>
 </body>
 </html>
