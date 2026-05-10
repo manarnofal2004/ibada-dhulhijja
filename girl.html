@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>جدول عبادة عشر ذي الحجة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
@@ -14,10 +16,10 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{overflow-x:hidden;width:100%}
-body{font-family:system-ui,-apple-system,Tahoma,sans-serif;background:var(--bg);color:var(--tx);padding:1.2rem 0.8rem 3rem}
+body{font-family:'Noto Naskh Arabic',system-ui,-apple-system,Tahoma,sans-serif;background:var(--bg);color:var(--tx);padding:1.2rem 0.8rem 3rem}
 .hdr{text-align:center;margin-bottom:1.4rem;padding-bottom:1rem;border-bottom:1.5px solid var(--bd)}
 .bsm{font-size:16px;color:var(--gold);margin-bottom:5px;font-weight:600}
-.hdr h1{font-size:22px;font-weight:700;color:var(--gD)}
+.hdr h1{font-size:22px;font-weight:700;color:var(--gD);font-family:'Noto Naskh Arabic',serif}
 .hdr p{font-size:12px;color:var(--mu);margin-top:5px}
 .leg{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:1rem;font-size:12px;color:var(--mu)}
 .li{display:flex;align-items:center;gap:5px}
@@ -30,12 +32,12 @@ body{font-family:system-ui,-apple-system,Tahoma,sans-serif;background:var(--bg);
 .tw{overflow:hidden;border-radius:12px;box-shadow:var(--sh);border:1px solid var(--bd);background:var(--sf);margin-bottom:1rem}
 table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:11.5px}
 thead th{background:var(--gD);color:#fff;font-weight:500;padding:8px 3px;text-align:center;border-bottom:2px solid var(--gM);font-size:11px}
-thead th.tc{background:var(--gDD);width:20px}
-thead th.ti{text-align:right;padding-right:8px;width:26%}
-thead th.tp{width:30px;font-size:10px;opacity:.85}
-thead th.td{width:7%}
-td.cc{background:#e8f6ee;color:var(--gD);font-weight:700;text-align:center;padding:4px 2px;border:1px solid #c8e8d4;writing-mode:vertical-rl;font-size:10px;vertical-align:middle}
-td.ic{font-size:11px;color:var(--tx);padding:5px 8px 5px 4px;border:1px solid #ede7db;background:var(--sf);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+thead th.tc{background:var(--gDD);width:18px}
+thead th.ti{text-align:right;padding-right:8px;width:32%}
+thead th.tp{width:26px;font-size:10px;opacity:.85}
+thead th.td{width:6%}
+td.cc{background:#e8f6ee;color:var(--gD);font-weight:700;text-align:center;padding:3px 1px;border:1px solid #c8e8d4;writing-mode:vertical-rl;font-size:9px;vertical-align:middle}
+td.ic{font-size:10.5px;color:var(--tx);padding:4px 6px 4px 3px;border:1px solid #ede7db;background:var(--sf);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 td.pc{text-align:center;color:var(--mu);font-size:11px;padding:5px 2px;border:1px solid #ede7db;background:#faf8f3;font-weight:500}
 td.cell{text-align:center;padding:2px;border:1px solid #ede7db;cursor:pointer;user-select:none;background:var(--sf);font-size:14px;font-weight:700;transition:background .1s;height:32px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 td.cell.done{background:var(--gL);color:var(--gD)}
@@ -50,7 +52,6 @@ tr.tr-day td.lbl{text-align:right;padding-right:8px;background:var(--gDD);font-s
 .btn{font-family:inherit;font-size:13px;font-weight:600;padding:11px;border-radius:8px;cursor:pointer;border:none;transition:background .15s;width:100%;text-align:center}
 .btn-send{background:var(--gD);color:#fff}.btn-send:hover{background:var(--gDD)}
 .btn-send.sending{background:var(--gM)}
-.btn-excel{background:#217346;color:#fff}.btn-excel:hover{background:#1a5c38}
 .btn-report{background:#1a4a8a;color:#fff}.btn-report:hover{background:#153d73}
 .note{text-align:center;font-size:11px;color:var(--mu);line-height:1.7}
 .status-bar{text-align:center;font-size:12px;padding:8px;border-radius:8px;margin-bottom:8px;display:none}
@@ -95,7 +96,6 @@ tr.tr-day td.lbl{text-align:right;padding-right:8px;background:var(--gDD);font-s
 </div>
 <div class="btns">
   <button class="btn btn-send" id="sendBtn" onclick="sendToManager()">☁️ إرسال نتائجي للمسؤولة</button>
-  <button class="btn btn-excel" onclick="exportExcel()">⬇ تصدير Excel</button>
   <button class="btn btn-report" onclick="openReport()">📊 عرض تقريري</button>
 </div>
 <p class="note">البيانات تُحفظ تلقائياً على جهازك ✓<br>اضغطي "إرسال" بعد كل يوم لتحديث نتائجك عند المسؤولة</p>
@@ -268,44 +268,51 @@ function openReport(){
   let filled=0;for(let d=1;d<=DAYS;d++)if(ROWS.some((_,ri)=>(state[sk(ri,d)]||0)!==0))filled++;
   const avg=filled>0?(grand/filled).toFixed(1):'—';
   const maxVal=Math.max(...dt,1);
+  const CAT_COLORS={'الأذكار':'#2d8a52','القرآن':'#1a6b8a','القيام':'#6b3a8a','الصلاة':'#c47a1a','الذكر وصلاة على الرسول':'#8a2d2d'};
   const bars=dt.map((v,i)=>{
-    const h=maxVal>0?Math.round((v/maxVal)*130):0;
+    const h=maxVal>0?Math.round((v/maxVal)*110):0;
     const col=v===0?'#e2d9c8':v>=maxVal*0.8?'#1a6b3c':v>=maxVal*0.5?'#5cb87a':'#a8e6c0';
-    return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;gap:3px">
-      <div style="font-size:10px;font-weight:700;color:#1a6b3c">${v>0?v:''}</div>
-      <div style="width:80%;background:${col};border-radius:4px 4px 0 0;height:${h}px;min-height:2px"></div>
-      <div style="font-size:9px;color:#7a6a52">${i+1}</div>
-    </div>`;
+    return '<div style="display:flex;flex-direction:column;align-items:center;flex:1;gap:2px"><div style="font-size:9px;font-weight:700;color:#1a6b3c">'+(v>0?v:'')+'</div><div style="width:75%;background:'+col+';border-radius:4px 4px 0 0;height:'+h+'px;min-height:2px"></div><div style="font-size:9px;color:#7a6a52">'+(i+1)+'</div></div>';
   }).join('');
-  const report=`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>تقرير ${name}</title>
-  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui;background:#fdfaf5;color:#2c2416;padding:1.5rem 1rem;direction:rtl}
-  .top{background:linear-gradient(135deg,#0f4a28,#1a6b3c);color:#fff;padding:1.5rem;border-radius:14px;text-align:center;margin-bottom:1.2rem}
-  .top h1{font-size:20px;font-weight:700;margin-bottom:4px}.top p{font-size:13px;opacity:.8}
-  .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1.2rem}
-  .sc{background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2d9c8}
-  .sv{font-size:24px;font-weight:700;color:#1a6b3c}.sl{font-size:11px;color:#7a6a52;margin-top:2px}
-  .box{background:#fff;border-radius:12px;padding:14px;border:1px solid #e2d9c8;margin-bottom:1rem}
-  .box h2{font-size:13px;font-weight:700;color:#1a6b3c;margin-bottom:12px}
-  </style></head><body>
-  <div class="top"><h1>تقرير عبادة عشر ذي الحجة</h1><p>${name}</p></div>
-  <div class="stats">
-    <div class="sc"><div class="sv">${grand}</div><div class="sl">المجموع</div></div>
-    <div class="sc"><div class="sv">${avg}</div><div class="sl">المعدل</div></div>
-    <div class="sc"><div class="sv">${filled}<span style="font-size:14px;color:#7a6a52">/10</span></div><div class="sl">الأيام</div></div>
-  </div>
-  <div class="box"><h2>📊 الأداء اليومي</h2>
-    <div style="display:flex;gap:4px;align-items:flex-end;height:160px;padding-bottom:4px">${bars}</div>
-  </div>
-  <div style="text-align:center;margin-top:1rem"><button onclick="window.print()" style="font-family:inherit;font-size:13px;padding:10px 24px;background:#1a6b3c;color:#fff;border:none;border-radius:8px;cursor:pointer">🖨️ طباعة</button></div>
-  </body></html>`;
+  const cats={};
+  ROWS.forEach((r,ri)=>{
+    if(!cats[r.cat])cats[r.cat]={earned:0,max:0,rows:[]};
+    cats[r.cat].max+=r.pts*DAYS;
+    let rowEarned=0;
+    for(let d=1;d<=DAYS;d++)if((state[sk(ri,d)]||0)===1)rowEarned+=r.pts;
+    cats[r.cat].earned+=rowEarned;
+    cats[r.cat].rows.push({ri,ibada:r.ibada,pts:r.pts,earned:rowEarned});
+  });
+  let catsHtml='';
+  Object.entries(cats).forEach(([cat,info])=>{
+    const col=CAT_COLORS[cat]||'#1a6b3c';
+    const catPct=info.max>0?Math.round(info.earned/info.max*100):0;
+    let rowsHtml='';
+    info.rows.forEach(row=>{
+      const dayDots=Array.from({length:DAYS},(_,di)=>{
+        const v=state[sk(row.ri,di+1)]||0;
+        const bg=v===1?'#d4f4e2':v===2?'#fcd5d5':'#f0f0f0';
+        const color=v===1?'#1a6b3c':v===2?'#c0392b':'#ccc';
+        const sym=v===1?'✓':v===2?'✗':'';
+        return '<div style="width:18px;height:18px;background:'+bg+';border-radius:3px;font-size:8px;font-weight:700;color:'+color+';display:flex;align-items:center;justify-content:center">'+sym+'</div>';
+      }).join('');
+      rowsHtml+='<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;background:#f8faf8;margin-bottom:3px"><div style="flex:1;font-size:11px;color:#2c2416">'+row.ibada+'</div><div style="display:flex;gap:2px">'+dayDots+'</div><div style="width:28px;text-align:center;font-size:11px;font-weight:700;color:#1a6b3c">'+row.earned+'</div></div>';
+    });
+    catsHtml+='<div style="margin-bottom:12px"><div style="background:'+col+';color:#fff;font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;margin-bottom:6px;display:flex;justify-content:space-between"><span>'+cat+'</span><span>'+info.earned+' نقطة ('+catPct+'%)</span></div>'+rowsHtml+'</div>';
+  });
+  const rHtml='<div style="background:linear-gradient(135deg,#0f4a28,#1a6b3c);color:#fff;padding:1.4rem;border-radius:14px;text-align:center;margin-bottom:1.2rem"><div style="font-size:13px;color:#a8e6c0;margin-bottom:4px">بسم الله الرحمن الرحيم</div><div style="font-size:20px;font-weight:700">تقرير عبادة عشر ذي الحجة</div><div style="font-size:13px;opacity:.8;margin-top:3px">'+name+'</div></div>'
+  +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1.2rem"><div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2d9c8"><div style="font-size:24px;font-weight:700;color:#1a6b3c">'+grand+'</div><div style="font-size:10px;color:#7a6a52">المجموع</div></div><div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2d9c8"><div style="font-size:24px;font-weight:700;color:#1a6b3c">'+avg+'</div><div style="font-size:10px;color:#7a6a52">المعدل</div></div><div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2d9c8"><div style="font-size:24px;font-weight:700;color:#1a6b3c">'+filled+'<span style="font-size:14px;color:#7a6a52">/10</span></div><div style="font-size:10px;color:#7a6a52">الأيام</div></div></div>'
+  +'<div style="background:#fff;border-radius:12px;padding:14px;border:1px solid #e2d9c8;margin-bottom:1.2rem"><div style="font-size:13px;font-weight:700;color:#1a6b3c;margin-bottom:12px">📊 الأداء اليومي</div><div style="display:flex;gap:4px;align-items:flex-end;height:130px">'+bars+'</div></div>'
+  +'<div style="background:#fff;border-radius:12px;padding:14px;border:1px solid #e2d9c8;margin-bottom:1.2rem"><div style="font-size:13px;font-weight:700;color:#1a6b3c;margin-bottom:12px">📋 تفصيل العبادات</div>'+catsHtml+'</div>'
+  +'<div style="text-align:center;padding-bottom:1rem"><button onclick="window.print()" style="font-family:inherit;font-size:13px;padding:10px 24px;background:#1a6b3c;color:#fff;border:none;border-radius:8px;cursor:pointer">🖨️ طباعة</button></div>';
   let ov=document.getElementById('rptOv');if(ov)ov.remove();
   ov=document.createElement('div');ov.id='rptOv';
   ov.style.cssText='position:fixed;inset:0;z-index:9000;background:#fdfaf5;overflow-y:auto;-webkit-overflow-scrolling:touch';
-  const closeBar=document.createElement('div');
-  closeBar.style.cssText='position:sticky;top:0;z-index:9999;background:#0f4a28;padding:10px 14px;display:flex;justify-content:space-between;align-items:center';
-  closeBar.innerHTML=`<span style="color:#fff;font-size:13px;font-weight:600">تقرير ${name}</span><button onclick="document.getElementById('rptOv').remove()" style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-family:inherit;font-size:12px;cursor:pointer">✕ إغلاق</button>`;
-  const content=document.createElement('div');content.innerHTML=report.replace(/<!DOCTYPE.*<body>/s,'').replace(/<\/body><\/html>/,'');
-  ov.appendChild(closeBar);ov.appendChild(content);document.body.appendChild(ov);
+  const cb=document.createElement('div');
+  cb.style.cssText='position:sticky;top:0;z-index:9999;background:#0f4a28;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem';
+  cb.innerHTML='<span style="color:#fff;font-size:13px;font-weight:600">📊 تقريري</span><button onclick="document.getElementById(\'rptOv\').remove()" style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-family:inherit;font-size:12px;cursor:pointer">✕ إغلاق</button>';
+  const ct=document.createElement('div');ct.style.cssText='padding:0 1rem';ct.innerHTML=rHtml;
+  ov.appendChild(cb);ov.appendChild(ct);document.body.appendChild(ov);
 }
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
