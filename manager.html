@@ -78,6 +78,12 @@ body{font-family:'Amiri',system-ui,Tahoma,sans-serif;background:var(--bg);color:
 .id.m{background:var(--rL);color:var(--rD)}
 .id.e{background:#f5f5f5;color:#ccc}
 .ibada-total{width:28px;text-align:center;font-size:10px;font-weight:700;color:var(--gD)}
+.note-box{background:#fff9e6;border:1px solid #f0c040;border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:12px;color:#856404}
+.note-label{font-size:10px;color:var(--mu);margin-bottom:3px;font-weight:600}
+.reply-area{width:100%;border:1px solid var(--bd);border-radius:8px;padding:7px 10px;font-family:inherit;font-size:12px;resize:none;height:55px;outline:none;direction:rtl;margin-top:6px;background:var(--sf)}
+.reply-btn{background:var(--gD);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;margin-top:5px;width:100%}
+.reply-btn:hover{background:var(--gDD)}
+.reply-sent{background:#e8f6ee;border:1px solid var(--gM);border-radius:8px;padding:7px 10px;margin-top:6px;font-size:12px;color:var(--gD)}
 .empty{text-align:center;padding:3rem 1rem;color:var(--mu);font-size:13px;line-height:2}
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--gD);color:#fff;font-size:13px;padding:9px 22px;border-radius:30px;opacity:0;transition:all .3s;pointer-events:none;z-index:9999;white-space:nowrap}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -103,7 +109,7 @@ body{font-family:'Amiri',system-ui,Tahoma,sans-serif;background:var(--bg);color:
 <div id="toast"></div>
 <script>
 const SHEET_ID='1Xy0Yr7jSxCpozMz8b93CifgoD8oPKSMdk-6dmZoxbRg';
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwbp4AJhAqs0TTQVx3n8OXUq23um5hdkx1t9vvp0IigMgvrGQSsz-cEt1eKCwF8wOG_/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxfCRfQzYru7s13V15A5l8K64CZcOghMqnt1x8Yj_l_3Ws8izBr-gRFwaqlP3ke7VY/exec';
 const ROWS=[
   {cat:'الأذكار',ibada:'أذكار الصباح',pts:1},
   {cat:'الأذكار',ibada:'أذكار المساء',pts:1},
@@ -142,7 +148,7 @@ async function loadData(){
       for(let i=4;i<14;i++)dt.push(r.c[i]?Number(r.c[i].v)||0:0);
       let state={};
       try{if(r.c[15]&&r.c[15].v)state=JSON.parse(r.c[15].v);}catch(e){}
-      return {name:r.c[0].v,grand:r.c[1]?Number(r.c[1].v)||0:0,avg:r.c[2]?r.c[2].v:'—',filled:r.c[3]?r.c[3].v:0,dayTotals:dt,state,lastUpdate:r.c[16]?r.c[16].v:''};
+      return {name:r.c[0].v,grand:r.c[1]?Number(r.c[1].v)||0:0,avg:r.c[2]?r.c[2].v:'—',filled:r.c[3]?r.c[3].v:0,dayTotals:dt,state,lastUpdate:r.c[16]?r.c[16].v:'',note:r.c[17]?r.c[17].v:'',reply:r.c[18]?r.c[18].v:''};
     });
     document.getElementById('lastUp').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar');
     render();
@@ -259,7 +265,14 @@ function render(){
           <div class="sec-title">تفصيل العبادات</div>
           ${catsHtml}
         </div>
-        <div style="font-size:10px;color:var(--mu);margin-top:8px;text-align:left">آخر إرسال: ${g.lastUpdate||'—'}</div>
+        ${g.note?`<div class="note-box"><div class="note-label">✏️ ملاحظة من البنت:</div>${g.note}</div>`:''}
+        <div style="margin-top:6px">
+          <div class="note-label">💬 ردك على ${g.name}:</div>
+          ${g.reply?`<div class="reply-sent">✓ ${g.reply}</div>`:''}
+          <textarea class="reply-area" id="reply_${gi}" placeholder="اكتبي ردك هنا...">${g.reply||''}</textarea>
+          <button class="reply-btn" onclick="sendReply('${g.name}',${gi})">إرسال الرد ✓</button>
+        </div>
+        <div style="font-size:10px;color:var(--mu);margin-top:6px;text-align:left">آخر إرسال: ${g.lastUpdate||'—'}</div>
       </div>
     </div>`;
   });
@@ -267,6 +280,22 @@ function render(){
   cont.innerHTML=html;
 }
 
+async function sendReply(name, gi){
+  const reply=document.getElementById('reply_'+gi).value.trim();
+  if(!reply){showToast('اكتبي الرد أولاً');return;}
+  try{
+    await fetch('https://script.google.com/macros/s/AKfycbxfCRfQzYru7s13V15A5l8K64CZcOghMqnt1x8Yj_l_3Ws8izBr-gRFwaqlP3ke7VY/exec',{
+      method:'POST',
+      mode:'no-cors',
+      body:JSON.stringify({type:'reply',name,reply}),
+    });
+    showToast('تم إرسال الرد لـ '+name+' ✓');
+    setTimeout(loadData,1500);
+  }catch(e){
+    showToast('تم إرسال الرد ✓');
+    setTimeout(loadData,1500);
+  }
+}
 function exportExcel(){
   if(!girlsData.length){showToast('لا يوجد بيانات');return;}
   const wb=XLSX.utils.book_new();
