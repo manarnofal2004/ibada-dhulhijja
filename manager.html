@@ -86,14 +86,14 @@ body{font-family:'Amiri',system-ui,Tahoma,sans-serif;background:var(--bg);color:
 .chat-bubble.girl{background:#fff9e6;border:1px solid #f0c040;color:#856404;border-radius:12px 12px 4px 12px}
 .chat-bubble.manager{background:var(--gL);border:1px solid var(--gM);color:var(--gD);border-radius:12px 12px 12px 4px}
 .chat-sender{font-size:10px;color:var(--mu);margin-bottom:2px;font-weight:600}
-.chat-btn{width:100%;padding:8px;background:#2d6e9e;color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:6px}
-.chat-btn:hover{background:#245d87}
-.chat-panel{display:none;margin-top:8px;border:1px solid var(--bd);border-radius:10px;overflow:hidden}
-.chat-panel.open{display:block}
-.chat-msgs{padding:10px;display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto;background:#f8fbf8}
-.chat-footer{padding:8px;border-top:1px solid var(--bd);display:flex;gap:6px;background:#fff}
-.chat-input{flex:1;border:1px solid var(--bd);border-radius:8px;padding:6px 10px;font-family:inherit;font-size:12px;resize:none;height:36px;outline:none;direction:rtl}
-.chat-send{background:var(--gD);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.notes-btn{width:100%;padding:8px;background:#2d6e9e;color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;margin-top:8px}
+.notes-btn:hover{background:#245d87}
+.notes-panel{display:none;margin-top:8px;border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+.notes-panel.open{display:block}
+.notes-list{padding:10px;display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;background:#f8fbf8}
+.notes-footer{padding:8px;border-top:1px solid var(--bd);background:#fff}
+.reply-input{width:100%;border:1px solid var(--bd);border-radius:8px;padding:6px 10px;font-family:inherit;font-size:12px;resize:none;height:40px;outline:none;direction:rtl;margin-bottom:5px}
+.reply-send{width:100%;background:var(--gD);color:#fff;border:none;border-radius:8px;padding:6px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer}
 .empty{text-align:center;padding:3rem 1rem;color:var(--mu);font-size:13px;line-height:2}
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--gD);color:#fff;font-size:13px;padding:9px 22px;border-radius:30px;opacity:0;transition:all .3s;pointer-events:none;z-index:9999;white-space:nowrap}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -119,7 +119,7 @@ body{font-family:'Amiri',system-ui,Tahoma,sans-serif;background:var(--bg);color:
 <div id="toast"></div>
 <script>
 const SHEET_ID='1Xy0Yr7jSxCpozMz8b93CifgoD8oPKSMdk-6dmZoxbRg';
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzeCm6q5HLsqvmtwdV3DVviAPywnANiNDFRnBWRXwYYDIgTZ37E9KeFQiuOBBmH-Vy7/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbz5A5OnxoecQybhVSPhz4fbAdG6Tv2Srj1cpbiKAIuWhaZ5BeroDahBK3UzhEwS4wEr/exec';
 const ROWS=[
   {cat:'الأذكار',ibada:'أذكار الصباح',pts:1},
   {cat:'الأذكار',ibada:'أذكار المساء',pts:1},
@@ -158,8 +158,8 @@ async function loadData(){
       for(let i=4;i<14;i++)dt.push(r.c[i]?Number(r.c[i].v)||0:0);
       let state={};
       try{if(r.c[15]&&r.c[15].v)state=JSON.parse(r.c[15].v);}catch(e){}
-      var msgs=[];try{if(r.c[17]&&r.c[17].v)msgs=JSON.parse(r.c[17].v);}catch(e){}
-      return {name:r.c[0].v,grand:r.c[1]?Number(r.c[1].v)||0:0,avg:r.c[2]?r.c[2].v:'—',filled:r.c[3]?r.c[3].v:0,dayTotals:dt,state,lastUpdate:r.c[16]?r.c[16].v:'',messages:msgs};
+      var convos=[];try{if(r.c[17]&&r.c[17].v)convos=JSON.parse(r.c[17].v);}catch(e){}
+      return {name:r.c[0].v,grand:r.c[1]?Number(r.c[1].v)||0:0,avg:r.c[2]?r.c[2].v:'—',filled:r.c[3]?r.c[3].v:0,dayTotals:dt,state,lastUpdate:r.c[16]?r.c[16].v:'',convos:convos};
     });
     document.getElementById('lastUp').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar');
     render();
@@ -276,28 +276,28 @@ function render(){
           <div class="sec-title">تفصيل العبادات</div>
           ${catsHtml}
         </div>
-        <button class="chat-btn" onclick="toggleChat(${gi})">
-          💬 محادثة ${g.name}
-          ${(g.messages&&g.messages.length>0)?`<span style="background:#c0392b;color:#fff;font-size:10px;padding:1px 7px;border-radius:10px">${g.messages.length}</span>`:''}
+        ${(g.convos&&g.convos.length>0)?`
+        <button class="notes-btn" onclick="toggleNotes(${gi})">
+          💬 ملاحظات ${g.name} (${g.convos.length})
+          ${g.convos.some(c=>!c.reply)?'<span style="background:#c0392b;color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-right:4px">تحتاج رد</span>':''}
         </button>
-        <div class="chat-panel" id="chatPanel_${gi}">
-          <div class="chat-msgs" id="chatMsgs_${gi}">
-            ${(g.messages&&g.messages.length>0)?g.messages.map(m=>{
-              const isGirl=m.from==='girl';
-              const bg=isGirl?'#fff9e6':'#d4f4e2';
-              const border=isGirl?'#f0c040':'#5cb87a';
-              const color=isGirl?'#856404':'#1a6b3c';
-              const align=isGirl?'flex-end':'flex-start';
-              const radius=isGirl?'10px 10px 3px 10px':'10px 10px 10px 3px';
-              const sender=isGirl?g.name:'المسؤولة';
-              return '<div style="display:flex;flex-direction:column;align-items:'+align+';gap:1px"><div style="font-size:9px;color:#7a6a52">'+sender+'</div><div style="background:'+bg+';border:1px solid '+border+';color:'+color+';padding:6px 10px;border-radius:'+radius+';font-size:11px;max-width:80%">'+m.text+'</div></div>';
-            }).join(''):'<div style="text-align:center;color:#7a6a52;font-size:11px;padding:1rem">لا توجد رسائل</div>'}
+        <div class="notes-panel" id="notesPanel_${gi}">
+          <div class="notes-list">
+            ${g.convos.slice().reverse().map((c,i)=>`
+              <div style="background:#fff;border-radius:8px;border:1px solid #e8f0e8;padding:8px 10px">
+                <div style="display:flex;flex-direction:column;align-items:flex-end;margin-bottom:${c.reply?'6px':'0'}">
+                  <div style="font-size:9px;color:#7a6a52;margin-bottom:2px">${g.name} — ${c.time||''}</div>
+                  <div style="background:#fff9e6;border:1px solid #f0c040;color:#856404;padding:6px 10px;border-radius:10px 10px 3px 10px;font-size:11px;max-width:90%;text-align:right">${c.note}</div>
+                </div>
+                ${c.reply?`<div style="display:flex;flex-direction:column;align-items:flex-start"><div style="font-size:9px;color:#7a6a52;margin-bottom:2px">ردك</div><div style="background:#d4f4e2;border:1px solid #5cb87a;color:#1a6b3c;padding:6px 10px;border-radius:10px 10px 10px 3px;font-size:11px;max-width:90%">${c.reply}</div></div>`
+                :'<div style="font-size:9px;color:#aaa;text-align:center;margin-top:3px">لم تردي بعد</div>'}
+              </div>`).join('')}
           </div>
-          <div class="chat-footer">
-            <textarea class="chat-input" id="chatInput_${gi}" placeholder="اكتبي ردك..."></textarea>
-            <button class="chat-send" onclick="sendManagerMsg('${g.name}',${gi})">إرسال</button>
+          <div class="notes-footer">
+            <textarea class="reply-input" id="replyInput_${gi}" placeholder="اكتبي ردك على آخر ملاحظة..."></textarea>
+            <button class="reply-send" onclick="sendReply('${g.name}',${gi})">إرسال الرد ✓</button>
           </div>
-        </div>
+        </div>`:''}
         <div style="font-size:10px;color:var(--mu);margin-top:6px;text-align:left">آخر إرسال: ${g.lastUpdate||'—'}</div>
       </div>
     </div>`;
@@ -306,23 +306,19 @@ function render(){
   cont.innerHTML=html;
 }
 
-function toggleChat(gi){
-  const panel=document.getElementById('chatPanel_'+gi);
+function toggleNotes(gi){
+  const panel=document.getElementById('notesPanel_'+gi);
   panel.classList.toggle('open');
-  if(panel.classList.contains('open')){
-    const msgs=document.getElementById('chatMsgs_'+gi);
-    if(msgs)msgs.scrollTop=msgs.scrollHeight;
-  }
 }
-async function sendManagerMsg(name,gi){
-  const input=document.getElementById('chatInput_'+gi);
-  const text=input.value.trim();
-  if(!text){showToast('اكتبي الرد أولاً');return;}
+async function sendReply(name,gi){
+  const input=document.getElementById('replyInput_'+gi);
+  const reply=input.value.trim();
+  if(!reply){showToast('اكتبي الرد أولاً');return;}
   input.value='';
   try{
-    await fetch('https://script.google.com/macros/s/AKfycbzeCm6q5HLsqvmtwdV3DVviAPywnANiNDFRnBWRXwYYDIgTZ37E9KeFQiuOBBmH-Vy7/exec',{
+    await fetch('https://script.google.com/macros/s/AKfycbz5A5OnxoecQybhVSPhz4fbAdG6Tv2Srj1cpbiKAIuWhaZ5BeroDahBK3UzhEwS4wEr/exec',{
       method:'POST',mode:'no-cors',
-      body:JSON.stringify({type:'message',name,from:'manager',text}),
+      body:JSON.stringify({type:'reply',name,reply}),
     });
     showToast('تم إرسال الرد لـ '+name+' ✓');
     setTimeout(loadData,1500);
