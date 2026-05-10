@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة المسؤولة — عشر ذي الحجة</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--gL:#d4f4e2;--gM:#5cb87a;--gD:#1a6b3c;--gDD:#0f4a28;--rL:#fcd5d5;--rD:#c0392b;--gold:#b8860b;--bg:#f5f9f5;--sf:#fff;--bd:#dde8dd;--tx:#1a2e1a;--mu:#5a7a5a;--sh:0 2px 12px rgba(0,0,0,.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:hidden;width:100%}
+body{font-family:system-ui,-apple-system,Tahoma,sans-serif;background:var(--bg);color:var(--tx);padding:1.2rem 0.8rem 4rem}
+.hdr{text-align:center;padding:1.4rem 1rem;background:linear-gradient(135deg,var(--gDD),var(--gD));border-radius:14px;color:#fff;margin-bottom:1.4rem;box-shadow:var(--sh)}
+.bsm{font-size:15px;color:#a8e6c0;margin-bottom:5px}
+.hdr h1{font-size:20px;font-weight:700;margin-bottom:3px}
+.hdr p{font-size:12px;opacity:.85}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1.2rem}
+.sc{background:var(--sf);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--bd)}
+.sv{font-size:22px;font-weight:700;color:var(--gD);line-height:1}
+.sl{font-size:11px;color:var(--mu);margin-top:2px}
+.refresh-btn{width:100%;padding:10px;background:var(--gD);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:1rem;transition:background .15s}
+.refresh-btn:hover{background:var(--gDD)}
+.refresh-btn.loading{background:var(--gM)}
+.export-btn{width:100%;padding:10px;background:#217346;color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:1.2rem}
+.sec-title{font-size:13px;font-weight:700;color:var(--gD);margin-bottom:10px;padding-bottom:5px;border-bottom:2px solid var(--gL)}
+.chart-box{background:var(--sf);border-radius:12px;padding:14px;border:1px solid var(--bd);margin-bottom:1.2rem;box-shadow:var(--sh)}
+.bars{display:flex;gap:6px;align-items:flex-end;height:120px}
+.bi{display:flex;flex-direction:column;align-items:center;flex:1;gap:2px}
+.bf{width:100%;background:var(--gD);border-radius:3px 3px 0 0;min-height:2px}
+.bv{font-size:9px;font-weight:700;color:var(--gD)}
+.bn{font-size:9px;color:var(--mu);text-align:center;max-width:40px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-box{background:var(--sf);border-radius:12px;padding:14px;border:1px solid var(--bd);margin-bottom:1.2rem;box-shadow:var(--sh)}
+.rank-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid var(--bd);margin-bottom:6px;background:var(--sf)}
+.rank-item.top{background:#fef9e7;border-color:#f0c040}
+.rnum{width:22px;height:22px;border-radius:50%;background:var(--mu);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rnum.r1{background:#d4a017}.rnum.r2{background:#9e9e9e}.rnum.r3{background:#a0522d}
+.rname{flex:1;font-size:13px;font-weight:600}
+.rpts{font-size:13px;font-weight:700;color:var(--gD)}
+.girl-cards{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:1.2rem}
+.gc{background:var(--sf);border-radius:12px;border:1px solid var(--bd);overflow:hidden;box-shadow:var(--sh)}
+.gc-hdr{background:var(--gD);padding:10px 12px;display:flex;justify-content:space-between;align-items:center}
+.gc-name{color:#fff;font-weight:700;font-size:13px}
+.gc-pts{color:#a8e6c0;font-size:12px;font-weight:600}
+.gc-body{padding:10px 12px}
+.gc-days{display:flex;gap:3px;margin-bottom:8px;flex-wrap:wrap}
+.dd{width:22px;height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;border:1px solid var(--bd);flex-direction:column}
+.dd.f{background:var(--gL);border-color:var(--gM);color:var(--gD)}
+.dd.e{background:#f0f0f0;color:#bbb}
+.dd-n{font-size:7px;color:var(--mu)}
+.bar-t{background:#f0f0f0;border-radius:20px;height:6px;overflow:hidden;margin-bottom:4px}
+.bar-f{height:100%;background:var(--gD);border-radius:20px}
+.gc-meta{display:flex;justify-content:space-between;font-size:10px;color:var(--mu)}
+.empty{text-align:center;padding:2rem;color:var(--mu);font-size:13px;line-height:1.8}
+.last-update{text-align:center;font-size:11px;color:var(--mu);margin-bottom:8px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--gD);color:#fff;font-size:13px;padding:9px 22px;border-radius:30px;opacity:0;transition:all .3s;pointer-events:none;z-index:9999;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="bsm">بسم الله الرحمن الرحيم</div>
+  <h1>🌙 لوحة المسؤولة</h1>
+  <p>تابعي أداء البنات في عشر ذي الحجة</p>
+</div>
+<div class="stats">
+  <div class="sc"><div class="sv" id="stTotal">0</div><div class="sl">عدد البنات</div></div>
+  <div class="sc"><div class="sv" id="stTop">—</div><div class="sl">أعلى مجموع</div></div>
+  <div class="sc"><div class="sv" id="stAvg">—</div><div class="sl">متوسط المجموعة</div></div>
+</div>
+<div class="last-update" id="lastUpdate"></div>
+<button class="refresh-btn" id="refreshBtn" onclick="loadData()">↻ تحديث النتائج</button>
+<button class="export-btn" onclick="exportExcel()">⬇ تصدير Excel للكل</button>
+
+<div id="mainContent">
+  <div class="empty">اضغطي "تحديث" لتحميل نتائج البنات</div>
+</div>
+<div id="toast"></div>
+
+<script>
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxihSA3dEgJ5J6lQ_LfjQQ0p8shqbR9RRq1CuqU4bqnyXNtwqE6OViwjpLN9t00VLZ1/exec';
+let girlsData=[];
+
+function loadData(){
+  const btn=document.getElementById('refreshBtn');
+  btn.textContent='جاري التحميل...';btn.classList.add('loading');btn.disabled=true;
+  // JSONP to avoid CORS
+  const old=document.getElementById('_jsonp');
+  if(old)old.remove();
+  window._jsonpCb=function(data){
+    girlsData=data.girls||[];
+    document.getElementById('lastUpdate').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar');
+    render();
+    showToast('تم التحديث ✓ — '+girlsData.length+' بنت');
+    btn.textContent='↻ تحديث النتائج';btn.classList.remove('loading');btn.disabled=false;
+  };
+  const s=document.createElement('script');
+  s.id='_jsonp';
+  s.onerror=function(){
+    showToast('خطأ في التحميل — تأكدي من الاتصال');
+    btn.textContent='↻ تحديث النتائج';btn.classList.remove('loading');btn.disabled=false;
+  };
+  s.src=SCRIPT_URL+'?callback=_jsonpCb&t='+Date.now();
+  document.body.appendChild(s);
+}
+
+function render(){
+  const cont=document.getElementById('mainContent');
+  if(girlsData.length===0){
+    cont.innerHTML='<div class="empty">لا يوجد بيانات بعد<br>انتظري حتى ترسل البنات نتائجهن</div>';
+    document.getElementById('stTotal').textContent='0';
+    document.getElementById('stTop').textContent='—';
+    document.getElementById('stAvg').textContent='—';
+    return;
+  }
+  const sorted=[...girlsData].sort((a,b)=>b.grand-a.grand);
+  const maxG=Math.max(...girlsData.map(g=>g.grand),1);
+  const avgAll=(girlsData.reduce((s,g)=>s+g.grand,0)/girlsData.length).toFixed(1);
+  document.getElementById('stTotal').textContent=girlsData.length;
+  document.getElementById('stTop').textContent=sorted[0].grand;
+  document.getElementById('stAvg').textContent=avgAll;
+
+  let html='';
+  // Chart
+  html+=`<div class="chart-box"><div class="sec-title">📊 مقارنة المجموع</div><div class="bars">`;
+  sorted.forEach(g=>{
+    const h=Math.round(g.grand/maxG*100);
+    html+=`<div class="bi"><div class="bv">${g.grand}</div><div class="bf" style="height:${h}px"></div><div class="bn">${g.name}</div></div>`;
+  });
+  html+=`</div></div>`;
+
+  // Ranking
+  html+=`<div class="rank-box"><div class="sec-title">🏅 الترتيب</div>`;
+  sorted.forEach((g,i)=>{
+    const rc=i===0?'r1':i===1?'r2':i===2?'r3':'';
+    const top=i===0?' top':'';
+    html+=`<div class="rank-item${top}"><div class="rnum ${rc}">${i+1}</div><div class="rname">${g.name}</div><div class="rpts">${g.grand} نقطة</div></div>`;
+  });
+  html+=`</div>`;
+
+  // Girl cards
+  html+=`<div class="sec-title">👥 تفصيل البنات</div><div class="girl-cards">`;
+  girlsData.forEach(g=>{
+    const pct=maxG>0?Math.round(g.grand/maxG*100):0;
+    const dt=g.dayTotals||Array(10).fill(0);
+    const dots=dt.map((v,i)=>`<div class="dd ${v>0?'f':'e'}"><div class="dd-n">${i+1}</div>${v>0?v:''}</div>`).join('');
+    html+=`<div class="gc">
+      <div class="gc-hdr"><span class="gc-name">${g.name}</span><span class="gc-pts">${g.grand} نقطة | معدل: ${g.avg}</span></div>
+      <div class="gc-body">
+        <div class="gc-days">${dots}</div>
+        <div class="bar-t"><div class="bar-f" style="width:${pct}%"></div></div>
+        <div class="gc-meta"><span>أيام: ${g.filled}/10</span><span>${g.lastUpdate||''}</span></div>
+      </div>
+    </div>`;
+  });
+  html+=`</div>`;
+  cont.innerHTML=html;
+}
+
+function exportExcel(){
+  if(girlsData.length===0){showToast('لا يوجد بيانات');return;}
+  const wb=XLSX.utils.book_new();
+  const sorted=[...girlsData].sort((a,b)=>b.grand-a.grand);
+  const sum=[['الترتيب','الاسم','المجموع','المعدل','الأيام',...Array.from({length:10},(_,i)=>'يوم '+(i+1)),'آخر تحديث']];
+  sorted.forEach((g,i)=>sum.push([i+1,g.name,g.grand,g.avg,g.filled,...(g.dayTotals||[]),g.lastUpdate||'']));
+  const ws=XLSX.utils.aoa_to_sheet(sum);
+  ws['!cols']=[{wch:6},{wch:16},{wch:10},{wch:10},{wch:8},...Array(10).fill({wch:8}),{wch:18}];
+  XLSX.utils.book_append_sheet(wb,ws,'ملخص البنات');
+  XLSX.writeFile(wb,'نتائج_البنات_ذي_الحجة.xlsx');
+  showToast('تم التصدير ✓');
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+loadData();
+</script>
+</body>
+</html>
