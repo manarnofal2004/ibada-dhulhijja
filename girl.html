@@ -259,10 +259,22 @@ function getDayTotals(){
 }
 function recalc(){
   const dt=getDayTotals();
-  let grand=0;ROWS.forEach((r,ri)=>{for(let d=1;d<=DAYS;d++)if((state[sk(ri,d)]||0)===1)grand+=r.pts;});
+  const cv=getCustomVals();
+  let grand=0;
+  ROWS.forEach((r,ri)=>{
+    for(let d=1;d<=DAYS;d++){
+      if(r.custom) grand+=(cv[sk(ri,d)]||0)*r.pts;
+      else if((state[sk(ri,d)]||0)===1) grand+=r.pts;
+    }
+  });
   dt.forEach((v,i)=>{const el=document.getElementById('dt'+(i+1));if(el)el.textContent=v;});
   document.getElementById('grandVal').textContent=grand;
-  let filled=0;for(let d=1;d<=DAYS;d++)if(ROWS.some((_,ri)=>(state[sk(ri,d)]||0)!==0))filled++;
+  let filled=0;
+  for(let d=1;d<=DAYS;d++){
+    const hasNormal=ROWS.some((r,ri)=>!r.custom&&(state[sk(ri,d)]||0)!==0);
+    const hasCustom=ROWS.some((r,ri)=>r.custom&&(cv[sk(ri,d)]||0)>0);
+    if(hasNormal||hasCustom)filled++;
+  }
   document.getElementById('filledVal').textContent=filled+'/10';
   document.getElementById('avgVal').textContent=filled>0?(grand/filled).toFixed(1):'—';
 }
