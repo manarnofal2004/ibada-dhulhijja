@@ -96,18 +96,18 @@ tr.tr-day td.lbl{text-align:right;padding-right:8px;background:var(--gDD);font-s
   <div class="sc"><div class="sl">المعدل</div><div class="sv" id="avgVal">—</div></div>
   <div class="sc"><div class="sl">الأيام</div><div class="sv" id="filledVal">0/10</div></div>
 </div>
-<button class="btn btn-chat" onclick="openChat()">💬 محادثة المسؤولة <span id="chatBadge" style="display:none;background:#c0392b;color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-right:4px"></span></button>
+<button class="btn btn-chat" onclick="openNotes()">💬 ملاحظاتي للمسؤولة <span id="noteBadge" style="display:none;background:#d4a017;color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-right:4px">رد جديد</span></button>
 
-<div id="chatOverlay" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.4);-webkit-overflow-scrolling:touch">
-  <div style="position:absolute;bottom:0;left:0;right:0;background:var(--sf);border-radius:16px 16px 0 0;max-height:80vh;display:flex;flex-direction:column">
+<div id="notesOverlay" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.4);-webkit-overflow-scrolling:touch;display:none">
+  <div style="position:absolute;bottom:0;left:0;right:0;background:var(--sf);border-radius:16px 16px 0 0;max-height:85vh;display:flex;flex-direction:column">
     <div style="background:var(--gD);padding:12px 16px;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
-      <span style="color:#fff;font-size:14px;font-weight:600">💬 محادثة المسؤولة</span>
-      <button onclick="document.getElementById('chatOverlay').style.display='none'" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:0 4px">✕</button>
+      <span style="color:#fff;font-size:14px;font-weight:600">💬 ملاحظاتي</span>
+      <button onclick="document.getElementById('notesOverlay').style.display='none'" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0 6px">✕</button>
     </div>
-    <div id="chatMessages" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:200px;max-height:50vh"></div>
-    <div style="padding:10px 12px;border-top:1px solid var(--bd);display:flex;gap:8px;flex-shrink:0">
-      <textarea id="chatInput" placeholder="اكتبي رسالة..." style="flex:1;border:1.5px solid var(--bd);border-radius:10px;padding:8px 12px;font-family:inherit;font-size:13px;resize:none;height:44px;outline:none;direction:rtl;background:var(--sf)"></textarea>
-      <button onclick="sendMessage()" style="background:var(--gD);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-family:inherit;font-size:14px;cursor:pointer;flex-shrink:0">إرسال</button>
+    <div id="convosBox" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;min-height:150px;max-height:55vh"></div>
+    <div style="padding:10px 12px;border-top:1px solid var(--bd);flex-shrink:0">
+      <textarea id="noteInput" placeholder="اكتبي ملاحظة جديدة للمسؤولة..." style="width:100%;border:1.5px solid var(--bd);border-radius:10px;padding:8px 12px;font-family:inherit;font-size:13px;resize:none;height:50px;outline:none;direction:rtl;background:var(--sf);margin-bottom:6px"></textarea>
+      <button onclick="sendNote()" style="width:100%;background:var(--gD);color:#fff;border:none;border-radius:8px;padding:9px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer">إرسال الملاحظة ✓</button>
     </div>
   </div>
 </div>
@@ -119,7 +119,7 @@ tr.tr-day td.lbl{text-align:right;padding-right:8px;background:var(--gDD);font-s
 <div id="toast"></div>
 
 <script>
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzeCm6q5HLsqvmtwdV3DVviAPywnANiNDFRnBWRXwYYDIgTZ37E9KeFQiuOBBmH-Vy7/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbz5A5OnxoecQybhVSPhz4fbAdG6Tv2Srj1cpbiKAIuWhaZ5BeroDahBK3UzhEwS4wEr/exec';
 const ROWS=[
   {cat:'الأذكار',ibada:'أذكار الصباح',pts:1},
   {cat:'الأذكار',ibada:'أذكار المساء',pts:1},
@@ -238,7 +238,7 @@ async function sendToManager(){
     const formUrl='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq';
     
     // Fallback: use the Apps Script with no-cors (data WILL be written, response is just opaque)
-    await fetch('https://script.google.com/macros/s/AKfycbzeCm6q5HLsqvmtwdV3DVviAPywnANiNDFRnBWRXwYYDIgTZ37E9KeFQiuOBBmH-Vy7/exec',{
+    await fetch('https://script.google.com/macros/s/AKfycbz5A5OnxoecQybhVSPhz4fbAdG6Tv2Srj1cpbiKAIuWhaZ5BeroDahBK3UzhEwS4wEr/exec',{
       method:'POST',
       mode:'no-cors',
       body:JSON.stringify({name,grand,avg,filled,dayTotals:dt,state}),
@@ -334,8 +334,8 @@ function openReport(){
   ov.appendChild(cb);ov.appendChild(ct);document.body.appendChild(ov);
 }
 
-let chatMessages=[];
-async function loadChatMessages(){
+let girlConvos=[];
+async function loadConvos(){
   const name=document.getElementById('userName').value.trim();
   if(!name)return;
   try{
@@ -346,59 +346,62 @@ async function loadChatMessages(){
     const rows=json.table.rows||[];
     const myRow=rows.find(r=>r.c&&r.c[0]&&r.c[0].v===name);
     if(myRow&&myRow.c[17]&&myRow.c[17].v){
-      try{chatMessages=JSON.parse(myRow.c[17].v);}catch(e){chatMessages=[];}
-      const unread=chatMessages.filter(m=>m.from==='manager').length;
-      if(unread>0){
-        document.getElementById('chatBadge').style.display='inline';
-        document.getElementById('chatBadge').textContent=unread;
-      }
-      renderChat();
+      try{girlConvos=JSON.parse(myRow.c[17].v);}catch(e){girlConvos=[];}
     }
+    const hasNewReply=girlConvos.some(c=>c.reply);
+    if(hasNewReply){
+      document.getElementById('noteBadge').style.display='inline';
+    }
+    renderConvos();
   }catch(e){}
 }
-function renderChat(){
-  const box=document.getElementById('chatMessages');
+function renderConvos(){
+  const box=document.getElementById('convosBox');
   if(!box)return;
-  const name=document.getElementById('userName').value||'أنتِ';
-  box.innerHTML=chatMessages.length===0?'<div style="text-align:center;color:#7a6a52;font-size:12px;padding:2rem">لا توجد رسائل بعد</div>':
-  chatMessages.map(m=>{
-    const isMe=m.from==='girl';
-    const bg=isMe?'#fff9e6':'#d4f4e2';
-    const border=isMe?'#f0c040':'#5cb87a';
-    const color=isMe?'#856404':'#1a6b3c';
-    const align=isMe?'flex-end':'flex-start';
-    const radius=isMe?'12px 12px 4px 12px':'12px 12px 12px 4px';
-    const sender=isMe?'أنتِ':'المسؤولة';
-    return '<div style="display:flex;flex-direction:column;align-items:'+align+';gap:2px"><div style="font-size:10px;color:#7a6a52">'+sender+'</div><div style="background:'+bg+';border:1px solid '+border+';color:'+color+';padding:8px 12px;border-radius:'+radius+';font-size:12px;max-width:80%">'+m.text+'</div><div style="font-size:9px;color:#aaa">'+m.time+'</div></div>';
-  }).join('');
-  box.scrollTop=box.scrollHeight;
+  if(!girlConvos.length){
+    box.innerHTML='<div style="text-align:center;color:#7a6a52;font-size:12px;padding:2rem">لا توجد ملاحظات بعد<br>اكتبي ملاحظتك أدناه</div>';
+    return;
+  }
+  box.innerHTML=girlConvos.slice().reverse().map((c,i)=>`
+    <div style="background:#f8fbf8;border-radius:10px;border:1px solid var(--bd);padding:10px 12px">
+      <div style="display:flex;flex-direction:column;align-items:flex-end;margin-bottom:${c.reply?'8px':'0'}">
+        <div style="font-size:10px;color:#7a6a52;margin-bottom:3px">ملاحظتك — ${c.time||''}</div>
+        <div style="background:#fff9e6;border:1px solid #f0c040;color:#856404;padding:8px 12px;border-radius:12px 12px 4px 12px;font-size:12px;max-width:90%;text-align:right">${c.note}</div>
+      </div>
+      ${c.reply?`<div style="display:flex;flex-direction:column;align-items:flex-start">
+        <div style="font-size:10px;color:#7a6a52;margin-bottom:3px">رد المسؤولة</div>
+        <div style="background:#d4f4e2;border:1px solid #5cb87a;color:#1a6b3c;padding:8px 12px;border-radius:12px 12px 12px 4px;font-size:12px;max-width:90%">${c.reply}</div>
+      </div>`:'<div style="font-size:10px;color:#aaa;text-align:center;margin-top:4px">في انتظار رد المسؤولة...</div>'}
+    </div>`).join('');
 }
-function openChat(){
-  document.getElementById('chatOverlay').style.display='flex';
-  document.getElementById('chatBadge').style.display='none';
-  renderChat();
-  loadChatMessages();
+function openNotes(){
+  const overlay=document.getElementById('notesOverlay');
+  overlay.style.display='flex';
+  document.getElementById('noteBadge').style.display='none';
+  loadConvos();
 }
-async function sendMessage(){
+async function sendNote(){
   const name=document.getElementById('userName').value.trim();
   if(!name){showToast('أدخلي اسمك أولاً');return;}
-  const input=document.getElementById('chatInput');
-  const text=input.value.trim();
-  if(!text)return;
-  input.value='';
-  chatMessages.push({from:'girl',text,time:new Date().toLocaleTimeString('ar')});
-  renderChat();
+  const note=document.getElementById('noteInput').value.trim();
+  if(!note){showToast('اكتبي ملاحظتك أولاً');return;}
+  document.getElementById('noteInput').value='';
   try{
-    await fetch('https://script.google.com/macros/s/AKfycbzeCm6q5HLsqvmtwdV3DVviAPywnANiNDFRnBWRXwYYDIgTZ37E9KeFQiuOBBmH-Vy7/exec',{
+    await fetch('https://script.google.com/macros/s/AKfycbz5A5OnxoecQybhVSPhz4fbAdG6Tv2Srj1cpbiKAIuWhaZ5BeroDahBK3UzhEwS4wEr/exec',{
       method:'POST',mode:'no-cors',
-      body:JSON.stringify({type:'message',name,from:'girl',text}),
+      body:JSON.stringify({type:'note',name,note}),
     });
-  }catch(e){}
+    showToast('تم إرسال الملاحظة ✓');
+    setTimeout(loadConvos,1000);
+  }catch(e){
+    showToast('تم الإرسال ✓');
+    setTimeout(loadConvos,1000);
+  }
 }
-async function checkReply(){await loadChatMessages();}
+async function checkReply(){await loadConvos();}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 document.getElementById('userName').addEventListener('input',save);
-load();build();setTimeout(loadChatMessages,1000);
+load();build();setTimeout(loadConvos,1500);
 </script>
 </body>
 </html>
