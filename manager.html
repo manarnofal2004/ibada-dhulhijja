@@ -119,7 +119,14 @@ body{font-family:'Amiri',system-ui,Tahoma,sans-serif;background:var(--bg);color:
 <div id="toast"></div>
 <script>
 const SHEET_ID='1Xy0Yr7jSxCpozMz8b93CifgoD8oPKSMdk-6dmZoxbRg';
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzFK6z1TS_ThKfw-nPcZ2r8SKp0JbACEp12chzt69j8_0z3Y2eOF8sMuLwRDTsI15lJ/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxcpg6jot_O79iEbeIjjzxlK07fTApM5eXBVZnqSTBMhJXcmTEDNoSzCMY76FnDm6ta/exec';
+const CUSTOM_DEFS=[
+  {ibada:'جزء قرآن',unit:'جزء',rowIdx:4},
+  {ibada:'سماع قرآن',unit:'صفحة',rowIdx:5},
+  {ibada:'قضاء فروض',unit:'فرض',rowIdx:7},
+  {ibada:'ركعات ضحى',unit:'ركعة',rowIdx:9},
+  {ibada:'ركعات أوابين',unit:'ركعة',rowIdx:10},
+];
 const ROWS=[
   {cat:'الأذكار',ibada:'أذكار الصباح',pts:1},
   {cat:'الأذكار',ibada:'أذكار المساء',pts:1},
@@ -161,7 +168,9 @@ async function loadData(){
       var notes={};
       try{if(r.c[17]&&r.c[17].v)notes=JSON.parse(r.c[17].v);}catch(e){}
       var lastUpd=r.c[16]&&r.c[16].v?r.c[16].v.toString():'';
-      return {name:r.c[0].v,grand:r.c[1]?Number(r.c[1].v)||0:0,avg:r.c[2]?r.c[2].v:'—',filled:r.c[3]?r.c[3].v:0,dayTotals:dt,state,lastUpdate:lastUpd,notes:notes};
+      var customSettings=[];
+      try{if(r.c[19]&&r.c[19].v)customSettings=JSON.parse(r.c[19].v);}catch(e){}
+      return {name:r.c[0].v,grand:r.c[1]?Number(r.c[1].v)||0:0,avg:r.c[2]?r.c[2].v:'—',filled:r.c[3]?r.c[3].v:0,dayTotals:dt,state,lastUpdate:lastUpd,notes:notes,customSettings:customSettings};
     });
     document.getElementById('lastUp').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar');
     render();
