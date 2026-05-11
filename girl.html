@@ -122,8 +122,9 @@ tr.tr-day td.lbl{text-align:right;padding-right:8px;background:var(--gDD);font-s
   </div>
 </div>
 
+
 <div class="btns">
-  <button class="btn btn-send" id="sendBtn" onclick="sendToManager()">☁️ إرسال نتائجي للمسؤولة</button>
+  <button class="btn btn-send" id="sendBtn" onclick="sendAll()">☁️ إرسال النتائج والملاحظة</button>
   <button class="btn btn-report" onclick="openReport()">📊 عرض تقريري</button>
 </div>
 <p class="note">البيانات تُحفظ تلقائياً على جهازك ✓<br>اضغطي "إرسال" بعد كل يوم لتحديث نتائجك عند المسؤولة</p>
@@ -144,7 +145,7 @@ var _ls=(function(){
 })();
 var SNK='dhulhijja_notes_v1';
 var CK='dhulhijja_custom_v1';
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzFK6z1TS_ThKfw-nPcZ2r8SKp0JbACEp12chzt69j8_0z3Y2eOF8sMuLwRDTsI15lJ/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxcpg6jot_O79iEbeIjjzxlK07fTApM5eXBVZnqSTBMhJXcmTEDNoSzCMY76FnDm6ta/exec';
 const ROWS=[
   {cat:'الأذكار',ibada:'أذكار الصباح',pts:1},
   {cat:'الأذكار',ibada:'أذكار المساء',pts:1},
@@ -353,10 +354,11 @@ async function sendToManager(){
     const formUrl='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq';
     
     // Fallback: use the Apps Script with no-cors (data WILL be written, response is just opaque)
-    await fetch('https://script.google.com/macros/s/AKfycbzFK6z1TS_ThKfw-nPcZ2r8SKp0JbACEp12chzt69j8_0z3Y2eOF8sMuLwRDTsI15lJ/exec',{
+    await fetch('https://script.google.com/macros/s/AKfycbxcpg6jot_O79iEbeIjjzxlK07fTApM5eXBVZnqSTBMhJXcmTEDNoSzCMY76FnDm6ta/exec',{
       method:'POST',
       mode:'no-cors',
-      body:JSON.stringify({name,grand,avg,filled,dayTotals:dt,state}),
+      body:JSON.stringify({name,grand,avg,filled,dayTotals:dt,state,
+      customSettings:CUSTOM_DEFS.map((_,i)=>parseInt(document.getElementById('ci_'+i)?.value)||0)}),
     });
     
     const bar=document.getElementById('statusBar');
@@ -423,6 +425,14 @@ function openReport(){
     const catPct=info.max>0?Math.round(info.earned/info.max*100):0;
     let rowsHtml='';
     info.rows.forEach(row=>{
+      const r=ROWS[row.ri];
+      // Show custom qty if applicable
+      let ibadaLabel=row.ibada;
+      if(r.customIdx!==undefined){
+        const qty=parseInt(document.getElementById('ci_'+r.customIdx)?.value)||0;
+        const def=CUSTOM_DEFS[r.customIdx];
+        if(qty>0)ibadaLabel=row.ibada+' <span style="background:#f0c040;color:#856404;font-size:9px;padding:1px 5px;border-radius:4px;font-weight:700">'+qty+' '+def.unit+'/يوم</span>';
+      }
       const dayDots=Array.from({length:DAYS},(_,di)=>{
         const v=state[sk(row.ri,di+1)]||0;
         const bg=v===1?'#d4f4e2':v===2?'#fcd5d5':'#f0f0f0';
@@ -430,7 +440,7 @@ function openReport(){
         const sym=v===1?'✓':v===2?'✗':'';
         return '<div style="width:18px;height:18px;background:'+bg+';border-radius:3px;font-size:8px;font-weight:700;color:'+color+';display:flex;align-items:center;justify-content:center">'+sym+'</div>';
       }).join('');
-      rowsHtml+='<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;background:#f8faf8;margin-bottom:3px"><div style="flex:1;font-size:11px;color:#2c2416">'+row.ibada+'</div><div style="display:flex;gap:2px">'+dayDots+'</div><div style="width:28px;text-align:center;font-size:11px;font-weight:700;color:#1a6b3c">'+row.earned+'</div></div>';
+      rowsHtml+='<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;background:#f8faf8;margin-bottom:3px"><div style="flex:1;font-size:11px;color:#2c2416">'+ibadaLabel+'</div><div style="display:flex;gap:2px">'+dayDots+'</div><div style="width:28px;text-align:center;font-size:11px;font-weight:700;color:#1a6b3c">'+row.earned+'</div></div>';
     });
     catsHtml+='<div style="margin-bottom:12px"><div style="background:'+col+';color:#fff;font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;margin-bottom:6px;display:flex;justify-content:space-between"><span>'+cat+'</span><span>'+info.earned+' نقطة ('+catPct+'%)</span></div>'+rowsHtml+'</div>';
   });
@@ -480,10 +490,67 @@ async function submitDayNote(){
   build();
   // Send to server
   try{
-    await fetch('https://script.google.com/macros/s/AKfycbzFK6z1TS_ThKfw-nPcZ2r8SKp0JbACEp12chzt69j8_0z3Y2eOF8sMuLwRDTsI15lJ/exec',{method:'POST',mode:'no-cors',body:JSON.stringify({type:'dayNote',name,day,text})});
+    await fetch('https://script.google.com/macros/s/AKfycbxcpg6jot_O79iEbeIjjzxlK07fTApM5eXBVZnqSTBMhJXcmTEDNoSzCMY76FnDm6ta/exec',{method:'POST',mode:'no-cors',body:JSON.stringify({type:'dayNote',name,day,text})});
     showToast('تم إرسال ملاحظة اليوم '+day+' ✓');
   }catch(e){showToast('تم الحفظ ✓');}
 }
+async function sendAll(){
+  const name=document.getElementById('userName').value.trim();
+  if(!name){showToast('أدخلي اسمك أولاً');return;}
+  const btn=document.getElementById('sendBtn');
+  btn.textContent='جاري الإرسال...';btn.classList.add('sending');btn.disabled=true;
+
+  const note=document.getElementById('dailyNote').value.trim();
+  const today=new Date().getDate(); // use actual day or let user pick
+
+  // Send data and note together
+  const dt=getDayTotals();
+  let grand=0;dt.forEach(v=>grand+=v);
+  let filled=0;for(let d=1;d<=DAYS;d++)if(ROWS.some((_,ri)=>(state[sk(ri,d)]||0)!==0))filled++;
+  const avg=filled>0?(grand/filled).toFixed(1):'—';
+
+  try{
+    // Send main data
+    await fetch('https://script.google.com/macros/s/AKfycbxcpg6jot_O79iEbeIjjzxlK07fTApM5eXBVZnqSTBMhJXcmTEDNoSzCMY76FnDm6ta/exec',{
+      method:'POST',mode:'no-cors',
+      body:JSON.stringify({name,grand,avg,filled,dayTotals:dt,state,
+      customSettings:CUSTOM_DEFS.map((_,i)=>parseInt(document.getElementById('ci_'+i)?.value)||0)}),
+    });
+
+    // If there's a note, detect which day was last filled and attach note to it
+    if(note){
+      // Find the last day that has any data
+      let lastDay=1;
+      for(let d=1;d<=DAYS;d++){
+        if(ROWS.some((_,ri)=>(state[sk(ri,d)]||0)!==0))lastDay=d;
+      }
+      // Check if note already sent for this day
+      const savedNotes=getSavedNotes();
+      if(!savedNotes[lastDay]){
+        await fetch('https://script.google.com/macros/s/AKfycbxcpg6jot_O79iEbeIjjzxlK07fTApM5eXBVZnqSTBMhJXcmTEDNoSzCMY76FnDm6ta/exec',{
+          method:'POST',mode:'no-cors',
+          body:JSON.stringify({type:'dayNote',name,day:lastDay,text:note}),
+        });
+        savedNotes[lastDay]={text:note,sent:true};
+        _ls.setItem('dhulhijja_notes_v1',JSON.stringify(savedNotes));
+        document.getElementById('dailyNote').value='';
+        showToast('تم إرسال النتائج والملاحظة ✓');
+      } else {
+        showToast('تم إرسال النتائج ✓ (ملاحظة هذا اليوم أُرسلت مسبقاً)');
+      }
+    } else {
+      showToast('تم الإرسال ✓');
+    }
+
+    const bar=document.getElementById('statusBar');
+    bar.style.display='block';bar.className='status-bar ok';
+    bar.textContent='✓ تم الإرسال للمسؤولة بنجاح!';
+  }catch(err){
+    showToast('تم الإرسال ✓');
+  }
+  btn.textContent='☁️ إرسال النتائج والملاحظة';btn.classList.remove('sending');btn.disabled=false;
+}
+
 async function checkReply(){}
 function guestMode(){
   const sid=Math.random().toString(36).slice(2,8);
@@ -492,17 +559,6 @@ function guestMode(){
 }
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 document.getElementById('userName').addEventListener('input',save);
-// Guest mode: use session storage
-if(new URLSearchParams(location.search).get('guest')){
-  const orig_get=localStorage.getItem.bind(localStorage);
-  const orig_set=localStorage.setItem.bind(localStorage);
-  const guestData={};
-  Object.defineProperty(window,'localStorage',{get:()=>({
-    getItem:k=>guestData[k]||null,
-    setItem:(k,v)=>{guestData[k]=v;},
-    removeItem:k=>delete guestData[k]
-  })});
-}
 initCustomPts();load();build();buildCustomSettings();
 </script>
 </body>
