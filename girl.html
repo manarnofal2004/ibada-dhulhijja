@@ -131,6 +131,17 @@ tr.tr-day td.lbl{text-align:right;padding-right:8px;background:var(--gDD);font-s
 <div id="toast"></div>
 
 <script>
+// Tab isolation: each ?sid=xxx gets separate storage
+var _ls=(function(){
+  var sid=new URLSearchParams(location.search).get('sid')||'';
+  if(!sid)return localStorage;
+  var prefix='sid_'+sid+'_';
+  return {
+    getItem:function(k){return localStorage.getItem(prefix+k);},
+    setItem:function(k,v){localStorage.setItem(prefix+k,v);},
+    removeItem:function(k){localStorage.removeItem(prefix+k);}
+  };
+})();
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwrIMbdtZX7zwaXeUe7h_NciE82K7wFdQ65RcWHePGBWrDUa8LEBWZbvFVmClA_TxI/exec';
 const ROWS=[
   {cat:'الأذكار',ibada:'أذكار الصباح',pts:1},
