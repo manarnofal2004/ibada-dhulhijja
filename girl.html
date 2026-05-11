@@ -142,6 +142,8 @@ var _ls=(function(){
     removeItem:function(k){localStorage.removeItem(prefix+k);}
   };
 })();
+var SNK='dhulhijja_notes_v1';
+var CK='dhulhijja_custom_v1';
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwrIMbdtZX7zwaXeUe7h_NciE82K7wFdQ65RcWHePGBWrDUa8LEBWZbvFVmClA_TxI/exec';
 const ROWS=[
   {cat:'الأذكار',ibada:'أذكار الصباح',pts:1},
@@ -250,7 +252,6 @@ function build(){
   buildNotesRow(tb);
   recalc();
 }
-var CK='dhulhijja_custom_v1';
 function getCustomSettings(){
   try{return JSON.parse(_ls.getItem('dhulhijja_csettings')||'null');}catch(e){return null;}
 }
@@ -449,7 +450,6 @@ function openReport(){
 }
 
 let currentNoteDay=0;
-var SNK='dhulhijja_notes_v1';
 function getSavedNotes(){
   try{return JSON.parse(_ls.getItem(SNK)||'{}')}catch(e){return {};}
 }
