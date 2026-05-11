@@ -158,8 +158,16 @@ async function loadData(){
       for(let i=4;i<14;i++)dt.push(r.c[i]?Number(r.c[i].v)||0:0);
       let state={};
       try{if(r.c[15]&&r.c[15].v)state=JSON.parse(r.c[15].v);}catch(e){}
-      var notes={};try{if(r.c[18]&&r.c[18].v)notes=JSON.parse(r.c[18].v);}catch(e){}
-      return {name:r.c[0].v,grand:r.c[1]?Number(r.c[1].v)||0:0,avg:r.c[2]?r.c[2].v:'—',filled:r.c[3]?r.c[3].v:0,dayTotals:dt,state,lastUpdate:r.c[17]?r.c[17].v:'',notes:notes};
+      var notes={};
+      // Try different column indices for notes (gviz may skip empty columns)
+      for(var ni=14;ni<=20;ni++){
+        try{if(r.c[ni]&&r.c[ni].v&&r.c[ni].v.toString().startsWith('{')&&r.c[ni].v.toString().includes('text')){notes=JSON.parse(r.c[ni].v);break;}}catch(e){}
+      }
+      var lastUpd='';
+      for(var li=14;li<=20;li++){
+        try{if(r.c[li]&&r.c[li].v&&r.c[li].v.toString().includes('2026')){lastUpd=r.c[li].v;break;}}catch(e){}
+      }
+      return {name:r.c[0].v,grand:r.c[1]?Number(r.c[1].v)||0:0,avg:r.c[2]?r.c[2].v:'—',filled:r.c[3]?r.c[3].v:0,dayTotals:dt,state,lastUpdate:lastUpd,notes:notes};
     });
     document.getElementById('lastUp').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar');
     render();
