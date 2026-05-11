@@ -226,49 +226,54 @@ function render(){
   html+=`</div>`;
 
   // Girl detail cards
-  // Custom ibada detailed stats
-  // ROWS indices for custom ibadas: 4=جزء قران, 5=سماع قران, 7=قضاء فروض, 9=ضحى, 10=اوابين
-  const CUSTOM_ROW_IDX=[4,5,7,9,10];
-  if(girlsData.some(g=>g.customSettings&&g.customSettings.some(v=>v>0))){
-    html+='<div class="card"><div class="card-t">📖 تفصيل العبادات المخصصة</div>';
-    CUSTOM_DEFS.forEach(function(def,ci){
-      // Only show if at least one girl has this setting
-      var hasData=girlsData.some(function(g){return g.customSettings&&(g.customSettings[ci]||0)>0;});
-      if(!hasData)return;
-      var rowIdx=CUSTOM_ROW_IDX[ci];
-      // Calculate per-girl totals
-      var girlStats=girlsData.map(function(g){
-        var qty=g.customSettings&&g.customSettings[ci]||0;
-        if(!qty)return null;
-        var state=g.state||{};
-        var dayVals=[];
-        var total=0;
-        for(var d=1;d<=10;d++){
-          var done=(state[rowIdx+'-'+d]||0)===1;
-          var val=done?qty:0;
-          dayVals.push(val);
-          total+=val;
-        }
-        return {name:g.name,qty:qty,dayVals:dayVals,total:total};
-      }).filter(Boolean).sort(function(a,b){return b.total-a.total;});
-      if(!girlStats.length)return;
+  // Per-ibada ranking for ALL rows
+  if(girlsData.length>0){
+    const IBADA_ROWS=[
+      {name:'أذكار الصباح',ri:0,pts:1},
+      {name:'أذكار المساء',ri:1,pts:1},
+      {name:'أذكار اليوم',ri:2,pts:5},
+      {name:'سورة البقرة',ri:3,pts:24},
+      {name:'جزء قرآن',ri:4,custom:true,ci:0,unit:'جزء'},
+      {name:'سماع قرآن (صفحة)',ri:5,custom:true,ci:1,unit:'صفحة'},
+      {name:'ركعتين حاجة',ri:6,pts:5},
+      {name:'قضاء فروض',ri:7,custom:true,ci:2,unit:'فرض'},
+      {name:'قيام (غير حاجة والقضاء)',ri:8,pts:2},
+      {name:'٨ ركعات ضحى',ri:9,custom:true,ci:3,unit:'ركعة'},
+      {name:'٦ ركعات أوابين',ri:10,custom:true,ci:4,unit:'ركعة'},
+      {name:'فروض الصلاة',ri:11,pts:5},
+      {name:'سنن الصلوات',ri:12,pts:5},
+      {name:'٢٠٠ صلاة على الرسول',ri:13,pts:20},
+      {name:'٢٠٠ تهليل',ri:14,pts:20},
+      {name:'٢٠٠ استغفار',ri:15,pts:20},
+      {name:'١٠ سبحان الله وبحمده',ri:16,pts:1},
+    ];
+    html+='<div class="card"><div class="card-t">🏆 الترتيب لكل عبادة</div>';
+    IBADA_ROWS.forEach(function(ibada){
       var medals=['🥇','🥈','🥉'];
-      html+='<div style="margin-bottom:14px">';
-      html+='<div style="font-size:12px;font-weight:700;color:var(--gD);margin-bottom:8px;padding:5px 10px;background:var(--gL);border-radius:6px">'+def.ibada+' ('+def.unit+')</div>';
-      // Day headers
-      html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:10px">';
-      html+='<thead><tr><th style="background:var(--gD);color:#fff;padding:4px 6px;text-align:right;border-radius:4px 0 0 0">البنت</th>';
-      for(var d=1;d<=10;d++)html+='<th style="background:var(--gD);color:#fff;padding:4px 3px;text-align:center;min-width:22px">'+d+'</th>';
-      html+='<th style="background:var(--gDD);color:#fff;padding:4px 6px;text-align:center;border-radius:0 4px 0 0">المجموع</th></tr></thead><tbody>';
-      girlStats.forEach(function(g,i){
-        var bg=i===0?'#fef9e7':i%2===0?'#f8fbf8':'#fff';
-        html+='<tr style="background:'+bg+'"><td style="padding:5px 6px;font-weight:'+(i===0?'700':'400')+';border:1px solid #e8f0e8">'+(medals[i]||'')+' '+g.name+'</td>';
-        g.dayVals.forEach(function(v){
-          html+='<td style="padding:4px 3px;text-align:center;border:1px solid #e8f0e8;'+(v>0?'background:var(--gL);color:var(--gD);font-weight:700':'color:#ccc')+'">'+( v>0?v:'-')+'</td>';
-        });
-        html+='<td style="padding:4px 6px;text-align:center;font-weight:700;color:var(--gD);background:var(--gL);border:1px solid var(--gM)">'+g.total+'</td></tr>';
+      var ranked=girlsData.map(function(g){
+        var state=g.state||{};
+        var total=0;
+        if(ibada.custom){
+          var qty=(g.customSettings&&g.customSettings[ibada.ci])||0;
+          if(!qty)return null;
+          for(var d=1;d<=10;d++)if((state[ibada.ri+'-'+d]||0)===1)total+=qty;
+          return {name:g.name,total:total,unit:ibada.unit};
+        } else {
+          for(var d=1;d<=10;d++)if((state[ibada.ri+'-'+d]||0)===1)total+=ibada.pts;
+          return total>0?{name:g.name,total:total,unit:'نقطة'}:null;
+        }
+      }).filter(Boolean).sort(function(a,b){return b.total-a.total;});
+      if(!ranked.length)return;
+      html+='<div style="margin-bottom:10px">';
+      html+='<div style="font-size:11px;font-weight:700;color:var(--gD);margin-bottom:5px;padding-bottom:3px;border-bottom:1px solid var(--gL)">'+ibada.name+'</div>';
+      ranked.forEach(function(g,i){
+        html+='<div style="display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;background:'+(i===0?'#fef9e7':'#f8fbf8')+';margin-bottom:3px">'
+          +'<span style="font-size:13px">'+(medals[i]||((i+1)+'.'))+' </span>'
+          +'<span style="flex:1;font-size:12px;font-weight:'+(i===0?'700':'400')+'">'+g.name+'</span>'
+          +'<span style="background:var(--gD);color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:10px">'+g.total+' '+g.unit+'</span>'
+          +'</div>';
       });
-      html+='</tbody></table></div></div>';
+      html+='</div>';
     });
     html+='</div>';
   }
