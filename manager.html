@@ -226,30 +226,30 @@ function render(){
   html+=`</div>`;
 
   // Girl detail cards
-  // Per-ibada ranking for ALL rows
+  // Per-ibada ranking - compact horizontal style
   if(girlsData.length>0){
     const IBADA_ROWS=[
       {name:'أذكار الصباح',ri:0,pts:1},
       {name:'أذكار المساء',ri:1,pts:1},
       {name:'أذكار اليوم',ri:2,pts:5},
       {name:'سورة البقرة',ri:3,pts:24},
-      {name:'جزء قرآن',ri:4,custom:true,ci:0,unit:'جزء'},
-      {name:'سماع قرآن (صفحة)',ri:5,custom:true,ci:1,unit:'صفحة'},
+      {name:'جزء قرآن',ri:4,custom:true,ci:0,unit:'جزء',showTotal:true},
+      {name:'سماع قرآن',ri:5,custom:true,ci:1,unit:'صفحة'},
       {name:'ركعتين حاجة',ri:6,pts:5},
       {name:'قضاء فروض',ri:7,custom:true,ci:2,unit:'فرض'},
-      {name:'قيام (غير حاجة والقضاء)',ri:8,pts:2},
-      {name:'٨ ركعات ضحى',ri:9,custom:true,ci:3,unit:'ركعة'},
-      {name:'٦ ركعات أوابين',ri:10,custom:true,ci:4,unit:'ركعة'},
+      {name:'قيام',ri:8,pts:2},
+      {name:'ركعات ضحى',ri:9,custom:true,ci:3,unit:'ركعة'},
+      {name:'ركعات أوابين',ri:10,custom:true,ci:4,unit:'ركعة'},
       {name:'فروض الصلاة',ri:11,pts:5},
       {name:'سنن الصلوات',ri:12,pts:5},
-      {name:'٢٠٠ صلاة على الرسول',ri:13,pts:20},
-      {name:'٢٠٠ تهليل',ri:14,pts:20},
-      {name:'٢٠٠ استغفار',ri:15,pts:20},
-      {name:'١٠ سبحان الله وبحمده',ri:16,pts:1},
+      {name:'صلاة على الرسول',ri:13,pts:20},
+      {name:'تهليل',ri:14,pts:20},
+      {name:'استغفار',ri:15,pts:20},
+      {name:'سبحان الله',ri:16,pts:1},
     ];
+    const medals=['🥇','🥈','🥉'];
     html+='<div class="card"><div class="card-t">🏆 الترتيب لكل عبادة</div>';
     IBADA_ROWS.forEach(function(ibada){
-      var medals=['🥇','🥈','🥉'];
       var ranked=girlsData.map(function(g){
         var state=g.state||{};
         var total=0;
@@ -257,20 +257,24 @@ function render(){
           var qty=(g.customSettings&&g.customSettings[ibada.ci])||0;
           if(!qty)return null;
           for(var d=1;d<=10;d++)if((state[ibada.ri+'-'+d]||0)===1)total+=qty;
-          return {name:g.name,total:total,unit:ibada.unit};
+          return {name:g.name,total:total};
         } else {
           for(var d=1;d<=10;d++)if((state[ibada.ri+'-'+d]||0)===1)total+=ibada.pts;
-          return total>0?{name:g.name,total:total,unit:'نقطة'}:null;
+          return total>0?{name:g.name,total:total}:null;
         }
       }).filter(Boolean).sort(function(a,b){return b.total-a.total;});
       if(!ranked.length)return;
-      html+='<div style="margin-bottom:10px">';
-      html+='<div style="font-size:11px;font-weight:700;color:var(--gD);margin-bottom:5px;padding-bottom:3px;border-bottom:1px solid var(--gL)">'+ibada.name+'</div>';
+      // Compact row: ibada name | 🥇 name val | 🥈 name val | ...
+      html+='<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:8px;background:#f8fbf8;margin-bottom:5px;flex-wrap:wrap">';
+      html+='<div style="font-size:10px;font-weight:700;color:var(--gD);min-width:80px;flex-shrink:0">'+ibada.name+'</div>';
       ranked.forEach(function(g,i){
-        html+='<div style="display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;background:'+(i===0?'#fef9e7':'#f8fbf8')+';margin-bottom:3px">'
-          +'<span style="font-size:13px">'+(medals[i]||((i+1)+'.'))+' </span>'
-          +'<span style="flex:1;font-size:12px;font-weight:'+(i===0?'700':'400')+'">'+g.name+'</span>'
-          +'<span style="background:var(--gD);color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:10px">'+g.total+' '+g.unit+'</span>'
+        var unit=ibada.custom?ibada.unit:'✓';
+        var valStr=ibada.custom?g.total+' '+unit:(g.total/ibada.pts)+'×';
+        if(ibada.showTotal)valStr=g.total+' '+ibada.unit;
+        html+='<div style="display:flex;align-items:center;gap:3px;background:'+(i===0?'#fef9e7':'#fff')+';border:1px solid '+(i===0?'#f0c040':'#e8f0e8')+';border-radius:12px;padding:2px 8px;font-size:10px">'
+          +'<span>'+(medals[i]||'')+' </span>'
+          +'<span style="font-weight:'+(i===0?'700':'500')+'">'+g.name+'</span>'
+          +'<span style="color:var(--gD);font-weight:700;margin-right:3px"> '+valStr+'</span>'
           +'</div>';
       });
       html+='</div>';
