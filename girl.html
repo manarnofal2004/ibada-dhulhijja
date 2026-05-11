@@ -127,7 +127,7 @@ tr.tr-day td.lbl{text-align:right;padding-right:8px;background:var(--gDD);font-s
   <button class="btn btn-report" onclick="openReport()">📊 عرض تقريري</button>
 </div>
 <p class="note">البيانات تُحفظ تلقائياً على جهازك ✓<br>اضغطي "إرسال" بعد كل يوم لتحديث نتائجك عند المسؤولة</p>
-<p style="text-align:center;margin-top:8px"><button onclick="guestMode()" style="background:none;border:none;color:var(--mu);font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit">👤 وضع الضيف (لبنت ثانية على نفس الجهاز)</button></p>
+<p style="text-align:center;margin-top:8px"><button onclick="guestMode()" style="background:none;border:none;color:var(--mu);font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit">👤 فتح لبنت ثانية (تاب منفصل)</button></p>
 <div id="toast"></div>
 
 <script>
@@ -165,12 +165,12 @@ let state={};
 const sk=(r,d)=>r+'-'+d;
 
 function load(){
-  try{const s=localStorage.getItem(SK);if(s)state=JSON.parse(s)}catch(e){}
-  try{const n=localStorage.getItem(NK);if(n)document.getElementById('userName').value=n}catch(e){}
+  try{const s=_ls.getItem(SK);if(s)state=JSON.parse(s)}catch(e){}
+  try{const n=_ls.getItem(NK);if(n)document.getElementById('userName').value=n}catch(e){}
 }
 function save(){
-  try{localStorage.setItem(SK,JSON.stringify(state))}catch(e){}
-  try{localStorage.setItem(NK,document.getElementById('userName').value)}catch(e){}
+  try{_ls.setItem(SK,JSON.stringify(state))}catch(e){}
+  try{_ls.setItem(NK,document.getElementById('userName').value)}catch(e){}
 }
 function applyCell(td,v){
   td.classList.remove('done','miss');
@@ -241,10 +241,10 @@ function build(){
 }
 var CK='dhulhijja_custom_v1';
 function getCustomSettings(){
-  try{return JSON.parse(localStorage.getItem('dhulhijja_csettings')||'null');}catch(e){return null;}
+  try{return JSON.parse(_ls.getItem('dhulhijja_csettings')||'null');}catch(e){return null;}
 }
 function saveCustomSettings(arr){
-  localStorage.setItem('dhulhijja_csettings',JSON.stringify(arr));
+  _ls.setItem('dhulhijja_csettings',JSON.stringify(arr));
 }
 function buildCustomSettings(){
   const box=document.getElementById('customSettings');
@@ -290,7 +290,7 @@ function initCustomPts(){
   });
 }
 function getCustomVals(){
-  try{return JSON.parse(localStorage.getItem(CK)||'{}')}catch(e){return {};}
+  try{return JSON.parse(_ls.getItem(CK)||'{}')}catch(e){return {};}
 }
 function getDayTotals(){
   return Array.from({length:DAYS},(_,i)=>{
@@ -440,11 +440,11 @@ function openReport(){
 let currentNoteDay=0;
 var SNK='dhulhijja_notes_v1';
 function getSavedNotes(){
-  try{return JSON.parse(localStorage.getItem(SNK)||'{}')}catch(e){return {};}
+  try{return JSON.parse(_ls.getItem(SNK)||'{}')}catch(e){return {};}
 }
 function saveNoteLocally(day,text){
   const n=getSavedNotes();n[day]={text,sent:false};
-  localStorage.setItem(SNK,JSON.stringify(n));
+  _ls.setItem(SNK,JSON.stringify(n));
 }
 function openNoteModal(day){
   const name=document.getElementById('userName').value.trim();
@@ -464,7 +464,7 @@ async function submitDayNote(){
   // Save locally
   const notes=getSavedNotes();
   notes[day]={text,sent:true};
-  localStorage.setItem(SNK,JSON.stringify(notes));
+  _ls.setItem(SNK,JSON.stringify(notes));
   // Rebuild notes row
   build();
   // Send to server
@@ -475,8 +475,8 @@ async function submitDayNote(){
 }
 async function checkReply(){}
 function guestMode(){
-  if(!confirm('وضع الضيف: ستُفتح صفحة جديدة بدون أي بيانات محفوظة. البيانات الحالية ستبقى كما هي.'))return;
-  const url=location.href.split('?')[0]+'?guest=1&t='+Date.now();
+  const sid=Math.random().toString(36).slice(2,8);
+  const url=location.href.split('?')[0]+'?sid='+sid;
   window.open(url,'_blank');
 }
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
