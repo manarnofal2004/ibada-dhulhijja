@@ -144,7 +144,7 @@ var _ls=(function(){
 })();
 var SNK='dhulhijja_notes_v1';
 var CK='dhulhijja_custom_v1';
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwrIMbdtZX7zwaXeUe7h_NciE82K7wFdQ65RcWHePGBWrDUa8LEBWZbvFVmClA_TxI/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzFK6z1TS_ThKfw-nPcZ2r8SKp0JbACEp12chzt69j8_0z3Y2eOF8sMuLwRDTsI15lJ/exec';
 const ROWS=[
   {cat:'الأذكار',ibada:'أذكار الصباح',pts:1},
   {cat:'الأذكار',ibada:'أذكار المساء',pts:1},
@@ -353,7 +353,7 @@ async function sendToManager(){
     const formUrl='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq';
     
     // Fallback: use the Apps Script with no-cors (data WILL be written, response is just opaque)
-    await fetch('https://script.google.com/macros/s/AKfycbwrIMbdtZX7zwaXeUe7h_NciE82K7wFdQ65RcWHePGBWrDUa8LEBWZbvFVmClA_TxI/exec',{
+    await fetch('https://script.google.com/macros/s/AKfycbzFK6z1TS_ThKfw-nPcZ2r8SKp0JbACEp12chzt69j8_0z3Y2eOF8sMuLwRDTsI15lJ/exec',{
       method:'POST',
       mode:'no-cors',
       body:JSON.stringify({name,grand,avg,filled,dayTotals:dt,state}),
@@ -480,7 +480,7 @@ async function submitDayNote(){
   build();
   // Send to server
   try{
-    await fetch('https://script.google.com/macros/s/AKfycbwrIMbdtZX7zwaXeUe7h_NciE82K7wFdQ65RcWHePGBWrDUa8LEBWZbvFVmClA_TxI/exec',{method:'POST',mode:'no-cors',body:JSON.stringify({type:'dayNote',name,day,text})});
+    await fetch('https://script.google.com/macros/s/AKfycbzFK6z1TS_ThKfw-nPcZ2r8SKp0JbACEp12chzt69j8_0z3Y2eOF8sMuLwRDTsI15lJ/exec',{method:'POST',mode:'no-cors',body:JSON.stringify({type:'dayNote',name,day,text})});
     showToast('تم إرسال ملاحظة اليوم '+day+' ✓');
   }catch(e){showToast('تم الحفظ ✓');}
 }
