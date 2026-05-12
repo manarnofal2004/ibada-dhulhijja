@@ -285,7 +285,7 @@ function buildCustomSettings(){
       let btnsHtml=def.choices.map((c,ci)=>
         `<button onclick="setChoice(${i},${ci},${c.pts})" id="cb_${i}_${ci}" style="border:1.5px solid #f0c040;border-radius:6px;padding:4px 10px;font-family:inherit;font-size:11px;cursor:pointer;background:${savedChoice===ci?'#f0c040':'#fff'};color:${savedChoice===ci?'#856404':'#7a6a52'};font-weight:${savedChoice===ci?'700':'400'}">${c.label}</button>`
       ).join('');
-      const pts=savedChoice>0?def.choices[savedChoice].pts:def.choices[0].pts;
+      const pts=def.choices[savedChoice]?def.choices[savedChoice].pts:def.choices[0].pts;
       row.innerHTML=`<span class="custom-label">${def.ibada}</span><div style="display:flex;gap:4px">${btnsHtml}</div><span class="custom-pts" id="cp_${i}">= ${pts} نقطة</span>`;
     } else {
       // Number input
