@@ -244,8 +244,8 @@ function build(){
     }
     const ti=document.createElement('td');ti.className='ic';
     if(r.badil){
-      ti.title='بديل: '+r.badil;
-      ti.innerHTML=r.ibada+'<span style="font-size:8px;color:#b8860b;margin-right:3px" title="'+r.badil+'"> 🔄</span>';
+      ti.style.cssText='font-size:10.5px;color:var(--tx);padding:3px 6px 3px 3px;border:1px solid #ede7db;background:var(--sf);overflow:hidden;white-space:normal;line-height:1.3';
+      ti.innerHTML='<div>'+r.ibada+'</div><div style="font-size:8px;color:#b8860b;margin-top:1px">🔄 '+r.badil+'</div>';
     } else {
       ti.textContent=r.ibada;
     }
