@@ -193,10 +193,10 @@ const CUSTOM_DEFS=[
   {ibada:'قضاء فروض',ptsPerUnit:3,unit:'فرض',max:20,defaultVal:1},
   {ibada:'ركعات ضحى',ptsPerUnit:1,unit:'ركعة',max:20,defaultVal:8,dynamicName:true,baseName:'ركعات ضحى'},
   {ibada:'ركعات أوابين',ptsPerUnit:1,unit:'ركعة',max:12,defaultVal:6,dynamicName:true,baseName:'ركعات أوابين'},
-  {ibada:'صلاة على الرسول',ptsPerUnit:5,unit:'×٥',max:2000,defaultVal:200,ptsDiv:100,minVal:200,note:'أدنى ٢٠٠/يوم'},
-  {ibada:'استغفار',ptsPerUnit:5,unit:'×٥',max:2000,defaultVal:200,ptsDiv:100,minVal:200,note:'أدنى ٢٠٠/يوم'},
-  {ibada:'تهليل',ptsPerUnit:5,unit:'×٥',max:4000,defaultVal:400,ptsDiv:100,minVal:400,note:'أدنى ٤٠٠/يوم'},
-  {ibada:'سبحان الله وبحمده',ptsPerUnit:2,unit:'×٢',max:1000,defaultVal:100,ptsDiv:50,minVal:100,note:'أدنى ١٠٠/يوم'},
+  {ibada:'صلاة على الرسول',ptsPerUnit:5,unit:'',max:2000,defaultVal:200,ptsDiv:100,minVal:200,note:'أدنى ٢٠٠/يوم'},
+  {ibada:'استغفار',ptsPerUnit:5,unit:'',max:2000,defaultVal:200,ptsDiv:100,minVal:200,note:'أدنى ٢٠٠/يوم'},
+  {ibada:'تهليل',ptsPerUnit:5,unit:'',max:4000,defaultVal:400,ptsDiv:100,minVal:400,note:'أدنى ٤٠٠/يوم'},
+  {ibada:'سبحان الله وبحمده',ptsPerUnit:2,unit:'',max:1000,defaultVal:100,ptsDiv:50,minVal:100,note:'أدنى ١٠٠/يوم'},
 ];
 const AMAL=[
   {name:'إفطار صائم',pts:5,hadith:'قال رسول الله ﷺ: «مَن فَطَّرَ صائمًا كان له مثلُ أجرِه، غيرَ أنه لا ينقص من أجرِ الصائمِ شيء»'},
@@ -329,7 +329,7 @@ function buildCustomSettings(){
       const noteHtml='';
       row.innerHTML=`<span class="custom-label">${def.ibada}${noteHtml}</span>
         <input type="number" class="custom-inp" id="ci_${i}" value="${val}" min="0" max="${def.max||999}" placeholder="${def.defaultVal||0}">
-        <span class="custom-unit">${def.ptsDiv?'':def.unit||''}</span>
+        <span class="custom-unit">${def.unit||''}</span>
         <span class="custom-pts" id="cp_${i}">= ${pts} نقطة</span>`;
       box.appendChild(row);
       const inp=document.getElementById('ci_'+i);
