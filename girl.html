@@ -490,8 +490,14 @@ async function sendToManager(){
     await fetch('https://script.google.com/macros/s/AKfycbxoxSqrNiNeJB5oRhynFs9b0yugiX-8y24_aPxWs098JpdheZpZqZoxjWN_8ZuPYHNK/exec',{
       method:'POST',
       mode:'no-cors',
-      body:JSON.stringify({name,grand,avg,filled,dayTotals:dt,state,amal:getAmalDone(),
-      customSettings:CUSTOM_DEFS.map((_,i)=>parseInt(document.getElementById('ci_'+i)?.value)||0)}),
+      body:JSON.stringify({name,grand,avg,filled,dayTotals:dt,state,amal:getAmalDone(),duaa:getDuaaDone(),
+      customSettings:CUSTOM_DEFS.map((_,i)=>{
+        if(CUSTOM_DEFS[i].type==='choice'){
+          const saved=getCustomSettings();
+          return saved?saved[i]:0;
+        }
+        return parseInt(document.getElementById('ci_'+i)?.value)||0;
+      })}),
     });
     
     const bar=document.getElementById('statusBar');
