@@ -30,10 +30,10 @@ const ROWS=[
   {cat:'القرآن',ibada:'سورة البقرة',pts:0,customIdx:0,badil:'صيغ الحوقلة'},
   {cat:'القرآن',ibada:'جزء قرآن',pts:10,customIdx:1,badil:'أسماء الله الحسنى مع دعائها'},
   {cat:'القرآن',ibada:'سماع قرآن',pts:1,customIdx:2},
-  {cat:'القيام',ibada:'ركعتين حاجة',pts:5,badil:'البديل: ٥ صيغ حمد'},
-  {cat:'القيام',ibada:'ركعتين توبة',pts:2,badil:'البديل: صيغتا حمد'},
-  {cat:'القيام',ibada:'ركعتين شكر',pts:2,badil:'البديل: صيغتا حمد'},
-  {cat:'القيام',ibada:'قضاء فروض',pts:3,customIdx:3,badil:'البديل: ٣ صيغ حمد عن كل فرض'},
+  {cat:'القيام',ibada:'ركعتين حاجة',pts:5,badil:'بديل فئة القيام كاملة: صيغ الحمد'},
+  {cat:'القيام',ibada:'ركعتين توبة',pts:2},
+  {cat:'القيام',ibada:'ركعتين شكر',pts:2},
+  {cat:'القيام',ibada:'قضاء فروض',pts:3,customIdx:3},
   {cat:'الصلاة',ibada:'ركعات ضحى',pts:1,customIdx:4,dynamicName:true,badil:'صلوات المحبين'},
   {cat:'الصلاة',ibada:'ركعات أوابين',pts:1,customIdx:5,dynamicName:true,badil:'صيغ الاستغفار'},
   {cat:'الصلاة',ibada:'فروض الصلاة',pts:5,badil:'٣٣ الباقيات الصالحات عن كل صلاة'},
@@ -69,7 +69,7 @@ const DUAAS=[
   'اللهم اجعل القرآن ربيع قلوبنا، ونور صدورنا، وجلاء أحزاننا، وذهاب همومنا.',
   'ربنا آتنا في الدنيا حسنة وفي الآخرة حسنة وقنا عذاب النار.'
 ];
-const DUAA_ITEMS=[{key:'daily',name:'دعاء اليوم',pts:2},{key:'self',name:'دعاء لنفسك',pts:2},{key:'ummah',name:'دعاء لأمة المسلمين',pts:2}];
+const DUAA_ITEMS=[{key:'daily',name:'دعاء اليوم',pts:1},{key:'self',name:'دعاء لنفسك',pts:1},{key:'ummah',name:'دعاء لأمة المسلمين',pts:1}];
 const CAT_ORDER=['الأذكار','القرآن','القيام','الصلاة','الذكر'];
 let girlsData=[];
 const sk=(r,d)=>r+'-'+d;
