@@ -329,7 +329,7 @@ function buildCustomSettings(){
       const noteHtml='';
       row.innerHTML=`<span class="custom-label">${def.ibada}${noteHtml}</span>
         <input type="number" class="custom-inp" id="ci_${i}" value="${val}" min="0" max="${def.max||999}" placeholder="${def.defaultVal||0}">
-        <span class="custom-unit">${def.unit||''}</span>
+        <span class="custom-unit">${def.ptsDiv?'':def.unit||''}</span>
         <span class="custom-pts" id="cp_${i}">= ${pts} نقطة</span>`;
       box.appendChild(row);
       const inp=document.getElementById('ci_'+i);
