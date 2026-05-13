@@ -534,9 +534,7 @@ function openReport(){
         if(qty>0)ibadaLabel=qty+' '+def.unit+'/يوم — '+r.ibada;
       }
       else if(def&&def.ptsDiv){
-        const cs=getCustomSettings();
-        const qty=cs?cs[r.customIdx]:def.defaultVal;
-        if(qty>0)ibadaLabel=r.ibada+' — '+qty;
+        // Keep ibada name only, qty shows in settings box
       }
     }
     cats[r.cat].rows.push({ri,ibada:ibadaLabel,pts:r.pts,earned:rowEarned});
