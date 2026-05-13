@@ -721,35 +721,59 @@ function toggleDuaa(){
   arr.textContent=open?'▼':'▲';
   if(!open)buildDuaa();
 }
+let currentDuaaDay=1;
+
+function selectDuaaDay(day){
+  currentDuaaDay=day;
+  buildDuaa();
+}
+
 function buildDuaa(){
   const body=document.getElementById('duaaBody');
   if(!body)return;
   const done=getDuaaDone();
   body.innerHTML='';
+
+  const chooser=document.createElement('div');
+  chooser.style.cssText='display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px';
+
   for(let day=1;day<=DAYS;day++){
-    const dayBox=document.createElement('div');
-    dayBox.style.cssText='border:1px solid var(--bd);border-radius:10px;background:#fffdf7;margin-bottom:8px;overflow:hidden';
-    const head=document.createElement('div');
-    head.style.cssText='background:#fff4d8;color:#856404;font-size:12px;font-weight:700;padding:7px 10px;line-height:1.5';
-    head.innerHTML='<div>دعاء اليوم '+day+'</div><div style="font-size:10px;font-weight:400;color:#7a6a52">'+DUAAS[day-1]+'</div>';
-    dayBox.appendChild(head);
-    DUAA_ITEMS.forEach(it=>{
-      const k=day+'-'+it.key;
-      const isDone=!!done[k];
-      const div=document.createElement('div');
-      div.className='amal-item'+(isDone?' done':'');
-      div.style.margin='6px 8px';
-      div.innerHTML='<div class="amal-check">'+(isDone?'✓':'')+'</div><div class="amal-info"><div class="amal-name">'+it.name+'</div></div><div class="amal-pts">'+it.pts+' نقاط</div>';
-      div.onclick=()=>{
-        const d=getDuaaDone();
-        if(d[k]){delete d[k];showToast('تم إلغاء: '+it.name+' — اليوم '+day);}
-        else{d[k]=true;showToast('✓ '+it.name+' — اليوم '+day+' — '+it.pts+' نقاط');}
-        saveDuaaDone(d);buildDuaa();recalc();
-      };
-      dayBox.appendChild(div);
-    });
-    body.appendChild(dayBox);
+    const b=document.createElement('button');
+    b.type='button';
+    b.textContent='اليوم '+day;
+    const active=day===currentDuaaDay;
+    b.style.cssText='font-family:inherit;font-size:11px;font-weight:700;padding:7px 4px;border-radius:8px;cursor:pointer;border:1.5px solid '+(active?'var(--gD)':'var(--bd)')+';background:'+(active?'var(--gD)':'#fff')+';color:'+(active?'#fff':'var(--tx)');
+    b.onclick=function(){selectDuaaDay(day);};
+    chooser.appendChild(b);
   }
+  body.appendChild(chooser);
+
+  const day=currentDuaaDay;
+  const dayBox=document.createElement('div');
+  dayBox.style.cssText='border:1px solid var(--bd);border-radius:10px;background:#fffdf7;overflow:hidden';
+
+  const head=document.createElement('div');
+  head.style.cssText='background:#fff4d8;color:#856404;font-size:12px;font-weight:700;padding:9px 10px;line-height:1.6';
+  head.innerHTML='<div>دعاء اليوم '+day+'</div><div style="font-size:11px;font-weight:400;color:#7a6a52">'+DUAAS[day-1]+'</div>';
+  dayBox.appendChild(head);
+
+  DUAA_ITEMS.forEach(it=>{
+    const k=day+'-'+it.key;
+    const isDone=!!done[k];
+    const div=document.createElement('div');
+    div.className='amal-item'+(isDone?' done':'');
+    div.style.margin='6px 8px';
+    div.innerHTML='<div class="amal-check">'+(isDone?'✓':'')+'</div><div class="amal-info"><div class="amal-name">'+it.name+'</div></div><div class="amal-pts">'+it.pts+' نقاط</div>';
+    div.onclick=()=>{
+      const d=getDuaaDone();
+      if(d[k]){delete d[k];showToast('تم إلغاء: '+it.name+' — اليوم '+day);}
+      else{d[k]=true;showToast('✓ '+it.name+' — اليوم '+day+' — '+it.pts+' نقاط');}
+      saveDuaaDone(d);buildDuaa();recalc();
+    };
+    dayBox.appendChild(div);
+  });
+
+  body.appendChild(dayBox);
 }
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 document.getElementById('userName').addEventListener('input',save);
