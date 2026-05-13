@@ -326,7 +326,7 @@ function buildCustomSettings(){
       // Number input
       const val=saved?saved[i]:def.defaultVal;
       const pts=(def.minVal&&val<def.minVal)?0:Math.floor(val/(def.ptsDiv||1))*def.ptsPerUnit;
-      const noteHtml=def.note?`<span style="font-size:9px;color:#b8860b;margin-right:4px">(${def.note})</span>`:'';
+      const noteHtml='';
       row.innerHTML=`<span class="custom-label">${def.ibada}${noteHtml}</span>
         <input type="number" class="custom-inp" id="ci_${i}" value="${val}" min="0" max="${def.max||999}" placeholder="${def.defaultVal||0}">
         <span class="custom-unit">${def.unit||''}</span>
