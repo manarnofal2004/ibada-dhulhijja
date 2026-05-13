@@ -188,15 +188,15 @@ const ROWS=[
 // Custom settings: [جزء قرآن, سماع قرآن, قضاء فروض, ركعات ضحى, ركعات أوابين]
 const CUSTOM_DEFS=[
   {ibada:'سورة البقرة',type:'choice',choices:[{label:'نصف البقرة',pts:10},{label:'البقرة كاملة',pts:20}]},
-  {ibada:'جزء قرآن',ptsPerUnit:10,unit:'جزء',max:30,defaultVal:1},
-  {ibada:'سماع قرآن',ptsPerUnit:1,unit:'صفحة',max:100,defaultVal:5},
-  {ibada:'قضاء فروض',ptsPerUnit:3,unit:'فرض',max:20,defaultVal:1},
-  {ibada:'ركعات ضحى',ptsPerUnit:1,unit:'ركعة',max:20,defaultVal:8,dynamicName:true,baseName:'ركعات ضحى'},
-  {ibada:'ركعات أوابين',ptsPerUnit:1,unit:'ركعة',max:12,defaultVal:6,dynamicName:true,baseName:'ركعات أوابين'},
-  {ibada:'صلاة على الرسول',ptsPerUnit:5,unit:'',max:2000,defaultVal:200,ptsDiv:100,minVal:200,note:'أدنى ٢٠٠/يوم'},
-  {ibada:'استغفار',ptsPerUnit:5,unit:'',max:2000,defaultVal:200,ptsDiv:100,minVal:200,note:'أدنى ٢٠٠/يوم'},
-  {ibada:'تهليل',ptsPerUnit:5,unit:'',max:4000,defaultVal:400,ptsDiv:100,minVal:400,note:'أدنى ٤٠٠/يوم'},
-  {ibada:'سبحان الله وبحمده',ptsPerUnit:2,unit:'',max:1000,defaultVal:100,ptsDiv:50,minVal:100,note:'أدنى ١٠٠/يوم'},
+  {ibada:'جزء قرآن',ptsPerUnit:10,unit:'/يوم',max:30,defaultVal:1},
+  {ibada:'سماع قرآن',ptsPerUnit:1,unit:'/يوم',max:100,defaultVal:5},
+  {ibada:'قضاء فروض',ptsPerUnit:3,unit:'/يوم',max:20,defaultVal:1},
+  {ibada:'ركعات ضحى',ptsPerUnit:1,unit:'/يوم',max:20,defaultVal:8,dynamicName:true,baseName:'ركعات ضحى'},
+  {ibada:'ركعات أوابين',ptsPerUnit:1,unit:'/يوم',max:12,defaultVal:6,dynamicName:true,baseName:'ركعات أوابين'},
+  {ibada:'صلاة على الرسول',ptsPerUnit:5,unit:'/يوم',max:2000,defaultVal:200,ptsDiv:100,minVal:200,note:'أدنى ٢٠٠/يوم'},
+  {ibada:'استغفار',ptsPerUnit:5,unit:'/يوم',max:2000,defaultVal:200,ptsDiv:100,minVal:200,note:'أدنى ٢٠٠/يوم'},
+  {ibada:'تهليل',ptsPerUnit:5,unit:'/يوم',max:4000,defaultVal:400,ptsDiv:100,minVal:400,note:'أدنى ٤٠٠/يوم'},
+  {ibada:'سبحان الله وبحمده',ptsPerUnit:2,unit:'/يوم',max:1000,defaultVal:100,ptsDiv:50,minVal:100,note:'أدنى ١٠٠/يوم'},
 ];
 const AMAL=[
   {name:'إفطار صائم',pts:5,hadith:'قال رسول الله ﷺ: «مَن فَطَّرَ صائمًا كان له مثلُ أجرِه، غيرَ أنه لا ينقص من أجرِ الصائمِ شيء»'},
