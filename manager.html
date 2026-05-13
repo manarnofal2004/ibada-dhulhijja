@@ -141,13 +141,13 @@ const ROWS=[
   {cat:'الصلاة',ibada:'٦ ركعات أوابين',pts:6},
   {cat:'الصلاة',ibada:'فروض الصلاة',pts:5},
   {cat:'الصلاة',ibada:'سنن الصلوات',pts:5},
-  {cat:'الذكر وصلاة على الرسول',ibada:'٢٠٠ صلاة على الرسول',pts:20},
-  {cat:'الذكر وصلاة على الرسول',ibada:'٢٠٠ تهليل',pts:20},
-  {cat:'الذكر وصلاة على الرسول',ibada:'٢٠٠ استغفار',pts:20},
-  {cat:'الذكر وصلاة على الرسول',ibada:'١٠ سبحان الله وبحمده',pts:1},
+  {cat:'الذكر',ibada:'٢٠٠ صلاة على الرسول',pts:20},
+  {cat:'الذكر',ibada:'٢٠٠ تهليل',pts:20},
+  {cat:'الذكر',ibada:'٢٠٠ استغفار',pts:20},
+  {cat:'الذكر',ibada:'١٠ سبحان الله وبحمده',pts:1},
 ];
 const DAYS=10;
-const AMAL_NAMES=['إفطار صائم', 'جبر خاطر الأم والأب', 'البسملة قبل كل عمل', 'النوم على وضوء', 'ترتيب النية لليوم', 'يوم كامل بدون إنستغرام', 'الاعتكاف من الفجر حتى الشروق', 'إطعام حيوان', 'استخدام السواك', 'إهداء عبادة لميت', 'رسالة شكر لمن له فضل عليكِ', 'إدخال سرور على قلب طفل'];
+const AMAL_NAMES=['إفطار صائم','جبر خاطر الأم والأب','البسملة قبل كل عمل','النوم على وضوء','ترتيب النية لليوم','يوم كامل بدون إنستغرام','الاعتكاف من الفجر حتى الشروق','إطعام حيوان','استخدام السواك','إهداء عبادة لميت','رسالة شكر لمن له فضل عليكِ','إدخال سرور على قلب طفل','حفظ صفحتين قرآن','حفظ ٥ أحاديث'];
 const sk=(r,d)=>r+'-'+d;
 const CAT_COLORS={'الأذكار':'#2d8a52','القرآن':'#1a6b8a','القيام':'#6b3a8a','الصلاة':'#c47a1a','الذكر وصلاة على الرسول':'#8a2d2d'};
 let girlsData=[];
@@ -238,7 +238,7 @@ function render(){
         {name:'أذكار النوم',ri:2,pts:5},
       ]},
       {name:'القرآن',emoji:'📖',ibadas:[
-        {name:'سورة البقرة',ri:3,choiceCI:0,choicePts:[10,20]},
+        {name:'سورة البقرة',ri:3,choiceCI:0,choicePts:[10,20],choiceLabels:['نصف','كاملة']},
         {name:'جزء قرآن',ri:4,custom:true,ci:1,unit:'جزء'},
         {name:'سماع قرآن',ri:5,custom:true,ci:2,unit:'صفحة'},
       ]},
@@ -254,7 +254,7 @@ function render(){
         {name:'فروض الصلاة',ri:12,pts:5},
         {name:'سنن الصلوات',ri:13,pts:5},
       ]},
-      {name:'الذكر وصلاة على الرسول',emoji:'✨',ibadas:[
+      {name:'الذكر',emoji:'✨',ibadas:[
         {name:'صلاة على الرسول',ri:14,dhikr:true,ci:6,ptsDiv:100,ptsPerUnit:5,minVal:200},
         {name:'استغفار',ri:15,dhikr:true,ci:7,ptsDiv:100,ptsPerUnit:5,minVal:200},
         {name:'تهليل',ri:16,dhikr:true,ci:8,ptsDiv:100,ptsPerUnit:5,minVal:400},
@@ -263,7 +263,22 @@ function render(){
     ];
     const medals=['🥇','🥈','🥉'];
     var catCounter=0;
-    html+='<div class="card"><div class="card-t">🏆 الترتيب لكل عبادة</div>';
+    // Overall ranking
+    var overallSorted=[...girlsData].sort((a,b)=>b.grand-a.grand);
+    var maxG=Math.max(...girlsData.map(g=>g.grand),1);
+    html+='<div class="card"><div class="card-t">🏆 المجموع الكلي</div>';
+    html+='<div style="margin-bottom:12px">';
+    overallSorted.forEach(function(g,i){
+      var medals=['🥇','🥈','🥉'];
+      var pct=Math.round(g.grand/maxG*100);
+      html+='<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:8px;background:'+(i===0?'#fef9e7':'#f8fbf8')+';margin-bottom:4px;border:1px solid '+(i===0?'#f0c040':'var(--bd)+'")+'">'
+        +'<span style="font-size:14px">'+(medals[i]||((i+1)+'.'))+' </span>'
+        +'<span style="flex:1;font-size:12px;font-weight:'+(i===0?'700':'400')+'">'+g.name+'</span>'
+        +'<span style="background:var(--gD);color:#fff;font-size:11px;font-weight:700;padding:2px 12px;border-radius:10px">'+g.grand+' نقطة</span>'
+        +'</div>';
+    });
+    html+='</div></div>';
+    html+='<div class="card"><div class="card-t">📊 الترتيب لكل عبادة</div>';
     CATS.forEach(function(cat){
       var cid='cat_'+catCounter++;
       html+='<button onclick="var d=document.getElementById(\''+cid+'\');d.style.display=d.style.display===\'block\'?\'none\':\'block\';this.querySelector(\'.arr\').textContent=d.style.display===\'block\'?\'▲\':\'▼\'" '
