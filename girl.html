@@ -337,7 +337,11 @@ function buildCustomSettings(){
         const n=parseInt(this.value)||0;
         const def2=CUSTOM_DEFS[i];const p=(def2.minVal&&n<def2.minVal)?0:Math.floor(n/(def2.ptsDiv||1))*def2.ptsPerUnit;
         document.getElementById('cp_'+i).textContent='= '+p+' نقطة';
-        const arr=CUSTOM_DEFS.map((_,j)=>{
+        const arr=CUSTOM_DEFS.map((d,j)=>{
+          if(d.type==='choice'){
+            // Get saved choice index
+            return saved?saved[j]:0;
+          }
           const el=document.getElementById('ci_'+j);
           return el?parseInt(el.value)||0:(saved?saved[j]:0);
         });
