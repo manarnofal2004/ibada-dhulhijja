@@ -151,10 +151,10 @@ tr.tr-day td.lbl{text-align:right;padding-right:8px;background:var(--gDD);font-s
   <div class="amal-body" id="duaaBody"></div>
 </div>
 <div class="btns">
-  <button class="btn btn-send" id="sendBtn" onclick="sendToManager()">☁️ إرسال نتائجي للمسؤولة</button>
+  <button class="btn btn-send" id="sendBtn" onclick="sendToManager()">☁️إرسال نتائجي </button>
   <button class="btn btn-report" onclick="openReport()">📊 عرض تقريري</button>
 </div>
-<p class="note">البيانات تُحفظ تلقائياً على جهازك ✓<br>اضغطي "إرسال" بعد كل يوم لتحديث نتائجك عند المسؤولة</p>
+<p class="note">البيانات تُحفظ تلقائياً على جهازك ✓<br>اضغطي "إرسال" بعد كل يوم لتحديث نتائجك </p>
 <p style="text-align:center;margin-top:8px"><button onclick="guestMode()" style="background:none;border:none;color:var(--mu);font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit">👤 فتح لبنت ثانية (تاب منفصل)</button></p>
 <div id="toast"></div>
 
@@ -503,14 +503,14 @@ async function sendToManager(){
     const bar=document.getElementById('statusBar');
     bar.style.display='block';
     bar.className='status-bar ok';
-    bar.textContent='✓ تم إرسال نتائجك للمسؤولة بنجاح!';
+    bar.textContent='✓ تم إرسال نتائجك بنجاح!';
     showToast('تم الإرسال ✓');
   }catch(e){
     // no-cors always "fails" but data is sent
     const bar=document.getElementById('statusBar');
     bar.style.display='block';
     bar.className='status-bar ok';
-    bar.textContent='✓ تم إرسال نتائجك للمسؤولة بنجاح!';
+    bar.textContent='✓ تم إرسال نتائجك بنجاح!';
     showToast('تم الإرسال ✓');
   }
   btn.textContent='☁️ إرسال نتائجي للمسؤولة';btn.classList.remove('sending');btn.disabled=false;
