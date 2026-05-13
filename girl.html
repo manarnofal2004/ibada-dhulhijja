@@ -180,10 +180,10 @@ const ROWS=[
   {cat:'الصلاة',ibada:'ركعات أوابين',pts:1,customIdx:5,dynamicName:true,badil:'صيغ الاستغفار'},
   {cat:'الصلاة',ibada:'فروض الصلاة',pts:5,badil:'٣٣ الباقيات الصالحات عن كل صلاة'},
   {cat:'الصلاة',ibada:'سنن الصلوات',pts:5,badil:'١٠ "لا إله إلا أنت سبحانك إني كنت من الظالمين" عن كل سنة'},
-  {cat:'الذكر وصلاة على الرسول',ibada:'صلاة على الرسول',pts:5,customIdx:6,ptsDiv:100,note:'أدنى ٢٠٠/يوم — ليل ونهار'},
-  {cat:'الذكر وصلاة على الرسول',ibada:'استغفار',pts:5,customIdx:7,ptsDiv:100,note:'أدنى ٢٠٠/يوم'},
-  {cat:'الذكر وصلاة على الرسول',ibada:'تهليل',pts:5,customIdx:8,ptsDiv:100,note:'أدنى ٤٠٠/يوم'},
-  {cat:'الذكر وصلاة على الرسول',ibada:'سبحان الله وبحمده',pts:2,customIdx:9,ptsDiv:50,note:'أدنى ١٠٠/يوم'},
+  {cat:'الذكر',ibada:'صلاة على الرسول',pts:5,customIdx:6,ptsDiv:100,note:'أدنى ٢٠٠/يوم — ليل ونهار'},
+  {cat:'الذكر',ibada:'استغفار',pts:5,customIdx:7,ptsDiv:100,note:'أدنى ٢٠٠/يوم'},
+  {cat:'الذكر',ibada:'تهليل',pts:5,customIdx:8,ptsDiv:100,note:'أدنى ٤٠٠/يوم'},
+  {cat:'الذكر',ibada:'سبحان الله وبحمده',pts:2,customIdx:9,ptsDiv:50,note:'أدنى ١٠٠/يوم'},
 ];
 // Custom settings: [جزء قرآن, سماع قرآن, قضاء فروض, ركعات ضحى, ركعات أوابين]
 const CUSTOM_DEFS=[
@@ -516,7 +516,7 @@ function openReport(){
     let rowEarned=0;
     for(let d=1;d<=DAYS;d++)if((state[sk(ri,d)]||0)===1)rowEarned+=r.pts;
     cats[r.cat].earned+=rowEarned;
-    // Show custom qty in label
+    // Show custom qty in label (not for dhikr ptsDiv rows)
     let ibadaLabel=r.ibada;
     if(r.customIdx!==undefined){
       const def=CUSTOM_DEFS[r.customIdx];
@@ -528,6 +528,11 @@ function openReport(){
         const cs=getCustomSettings();
         const qty=cs?cs[r.customIdx]:def.defaultVal;
         if(qty>0)ibadaLabel=qty+' '+def.unit+'/يوم — '+r.ibada;
+      }
+      else if(def&&def.ptsDiv){
+        const cs=getCustomSettings();
+        const qty=cs?cs[r.customIdx]:def.defaultVal;
+        if(qty>0)ibadaLabel=r.ibada+' — '+qty;
       }
     }
     cats[r.cat].rows.push({ri,ibada:ibadaLabel,pts:r.pts,earned:rowEarned});
