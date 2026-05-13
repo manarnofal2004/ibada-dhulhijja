@@ -119,7 +119,7 @@ body{font-family:'Amiri',system-ui,Tahoma,sans-serif;background:var(--bg);color:
 <div id="toast"></div>
 <script>
 const SHEET_ID='1Xy0Yr7jSxCpozMz8b93CifgoD8oPKSMdk-6dmZoxbRg';
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxcpg6jot_O79iEbeIjjzxlK07fTApM5eXBVZnqSTBMhJXcmTEDNoSzCMY76FnDm6ta/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxoxSqrNiNeJB5oRhynFs9b0yugiX-8y24_aPxWs098JpdheZpZqZoxjWN_8ZuPYHNK/exec';
 const CUSTOM_DEFS=[
   {ibada:'جزء قرآن',unit:'جزء',rowIdx:4},
   {ibada:'سماع قرآن',unit:'صفحة',rowIdx:5},
@@ -128,10 +128,10 @@ const CUSTOM_DEFS=[
   {ibada:'ركعات أوابين',unit:'ركعة',rowIdx:10},
 ];
 const ROWS=[
-  {cat:'الأذكار',ibada:'أذكار الصباح',pts:1},
-  {cat:'الأذكار',ibada:'أذكار المساء',pts:1},
-  {cat:'الأذكار',ibada:'أذكار اليوم',pts:5},
-  {cat:'القرآن',ibada:'سورة البقرة',pts:24},
+  {cat:'الأذكار',ibada:'أذكار الصباح',pts:5},
+  {cat:'الأذكار',ibada:'أذكار المساء',pts:5},
+  {cat:'الأذكار',ibada:'أذكار النوم',pts:5},
+  {cat:'القرآن',ibada:'سورة البقرة',pts:10,customIdx:0},
   {cat:'القرآن',ibada:'جزء قرآن',pts:1},
   {cat:'القرآن',ibada:'سماع قرآن (صفحة)',pts:1},
   {cat:'القيام',ibada:'ركعتين حاجة',pts:5},
@@ -147,6 +147,7 @@ const ROWS=[
   {cat:'الذكر وصلاة على الرسول',ibada:'١٠ سبحان الله وبحمده',pts:1},
 ];
 const DAYS=10;
+const AMAL_NAMES=['إفطار صائم', 'جبر خاطر الأم والأب', 'البسملة قبل كل عمل', 'النوم على وضوء', 'ترتيب النية لليوم', 'يوم كامل بدون إنستغرام', 'الاعتكاف من الفجر حتى الشروق', 'إطعام حيوان', 'استخدام السواك', 'إهداء عبادة لميت', 'رسالة شكر لمن له فضل عليكِ', 'إدخال سرور على قلب طفل'];
 const sk=(r,d)=>r+'-'+d;
 const CAT_COLORS={'الأذكار':'#2d8a52','القرآن':'#1a6b8a','القيام':'#6b3a8a','الصلاة':'#c47a1a','الذكر وصلاة على الرسول':'#8a2d2d'};
 let girlsData=[];
@@ -170,7 +171,9 @@ async function loadData(){
       var lastUpd=r.c[16]&&r.c[16].v?r.c[16].v.toString():'';
       var customSettings=[];
       try{if(r.c[19]&&r.c[19].v)customSettings=JSON.parse(r.c[19].v);}catch(e){}
-      return {name:r.c[0].v,grand:r.c[1]?Number(r.c[1].v)||0:0,avg:r.c[2]?r.c[2].v:'—',filled:r.c[3]?r.c[3].v:0,dayTotals:dt,state,lastUpdate:lastUpd,notes:notes,customSettings:customSettings};
+      var amal={};
+      try{if(r.c[20]&&r.c[20].v)amal=JSON.parse(r.c[20].v);}catch(e){}
+      return {name:r.c[0].v,grand:r.c[1]?Number(r.c[1].v)||0:0,avg:r.c[2]?r.c[2].v:'—',filled:r.c[3]?r.c[3].v:0,dayTotals:dt,state,lastUpdate:lastUpd,notes:notes,customSettings:customSettings,amal:amal};
     });
     document.getElementById('lastUp').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar');
     render();
@@ -230,31 +233,32 @@ function render(){
   if(girlsData.length>0){
     const CATS=[
       {name:'الأذكار',emoji:'📿',ibadas:[
-        {name:'أذكار الصباح',ri:0,pts:1},
-        {name:'أذكار المساء',ri:1,pts:1},
-        {name:'أذكار اليوم',ri:2,pts:5},
+        {name:'أذكار الصباح',ri:0,pts:5},
+        {name:'أذكار المساء',ri:1,pts:5},
+        {name:'أذكار النوم',ri:2,pts:5},
       ]},
       {name:'القرآن',emoji:'📖',ibadas:[
-        {name:'سورة البقرة',ri:3,pts:24},
-        {name:'جزء قرآن',ri:4,custom:true,ci:0,unit:'جزء'},
-        {name:'سماع قرآن',ri:5,custom:true,ci:1,unit:'صفحة'},
+        {name:'سورة البقرة',ri:3,choiceCI:0,choicePts:[10,20]},
+        {name:'جزء قرآن',ri:4,custom:true,ci:1,unit:'جزء'},
+        {name:'سماع قرآن',ri:5,custom:true,ci:2,unit:'صفحة'},
       ]},
       {name:'القيام',emoji:'🌙',ibadas:[
         {name:'ركعتين حاجة',ri:6,pts:5},
-        {name:'قضاء فروض',ri:7,custom:true,ci:2,unit:'فرض'},
-        {name:'قيام (غير حاجة)',ri:8,pts:2},
+        {name:'ركعتين توبة',ri:7,pts:2},
+        {name:'ركعتين شكر',ri:8,pts:2},
+        {name:'قضاء فروض',ri:9,custom:true,ci:3,unit:'فرض'},
       ]},
       {name:'الصلاة',emoji:'🕌',ibadas:[
-        {name:'ركعات ضحى',ri:9,custom:true,ci:3,unit:'ركعة'},
-        {name:'ركعات أوابين',ri:10,custom:true,ci:4,unit:'ركعة'},
-        {name:'فروض الصلاة',ri:11,pts:5},
-        {name:'سنن الصلوات',ri:12,pts:5},
+        {name:'ركعات ضحى',ri:10,custom:true,ci:4,unit:'ركعة'},
+        {name:'ركعات أوابين',ri:11,custom:true,ci:5,unit:'ركعة'},
+        {name:'فروض الصلاة',ri:12,pts:5},
+        {name:'سنن الصلوات',ri:13,pts:5},
       ]},
       {name:'الذكر وصلاة على الرسول',emoji:'✨',ibadas:[
-        {name:'صلاة على الرسول',ri:13,pts:20},
-        {name:'تهليل',ri:14,pts:20},
-        {name:'استغفار',ri:15,pts:20},
-        {name:'سبحان الله',ri:16,pts:1},
+        {name:'صلاة على الرسول',ri:14,dhikr:true,ci:6,ptsDiv:100,ptsPerUnit:5,minVal:200},
+        {name:'استغفار',ri:15,dhikr:true,ci:7,ptsDiv:100,ptsPerUnit:5,minVal:200},
+        {name:'تهليل',ri:16,dhikr:true,ci:8,ptsDiv:100,ptsPerUnit:5,minVal:400},
+        {name:'سبحان الله وبحمده',ri:17,dhikr:true,ci:9,ptsDiv:50,ptsPerUnit:2,minVal:100},
       ]},
     ];
     const medals=['🥇','🥈','🥉'];
@@ -287,7 +291,7 @@ function render(){
         ranked.forEach(function(g,i){
           var valStr=ibada.custom?g.total+' '+g.unit:(g.total/ibada.pts)+'×';
           html+='<span style="display:inline-flex;align-items:center;gap:3px;background:'+(i===0?'#fef9e7':'#fff')+';border:1px solid '+(i===0?'#f0c040':'#e8ece8')+';border-radius:12px;padding:2px 8px;font-size:10px">'
-            +(medals[i]||((i+1)+'.'))+' <b>'+g.name+'</b> <span style="color:var(--gD);font-weight:700">'+valStr+'</span></span>';
+            +(medals[i]||((i+1)+'.'))+' <b>'+g.name+'</b><span style="color:var(--gD);font-weight:700;margin-right:4px"> '+g.total+'</span></span>';
         });
         html+='</div></div>';
       });
@@ -373,6 +377,18 @@ function render(){
             }).join('')}
           </div>
         </div>`:''}
+        ${Object.keys(g.amal||{}).length>0?`
+        <button class="notes-btn" onclick="toggleAmalMgr(${gi})" style="margin-top:6px;background:#1a4a8a">
+          🌟 الأعمال الصالحة (${Object.keys(g.amal).length}/${AMAL_NAMES.length})
+        </button>
+        <div class="notes-panel" id="amalPanel_${gi}">
+          <div class="notes-list" style="display:flex;flex-wrap:wrap;gap:4px;padding:8px">
+            ${AMAL_NAMES.map((n,i)=>g.amal[i]?
+              '<span style="background:var(--gL);border:1px solid var(--gM);color:var(--gD);font-size:10px;padding:2px 8px;border-radius:10px">✓ '+n+'</span>':
+              '<span style="background:#f5f5f5;color:#bbb;font-size:10px;padding:2px 8px;border-radius:10px">'+n+'</span>'
+            ).join('')}
+          </div>
+        </div>`:''}
         <div style="font-size:10px;color:var(--mu);margin-top:6px;text-align:left">آخر إرسال: ${g.lastUpdate||'—'}</div>
       </div>
     </div>`;
@@ -381,6 +397,10 @@ function render(){
   cont.innerHTML=html;
 }
 
+function toggleAmalMgr(gi){
+  const panel=document.getElementById('amalPanel_'+gi);
+  if(panel)panel.classList.toggle('open');
+}
 function toggleNotes(gi){
   const panel=document.getElementById('notesPanel_'+gi);
   panel.classList.toggle('open');
