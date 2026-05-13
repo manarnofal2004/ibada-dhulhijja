@@ -551,7 +551,7 @@ function openReport(){
       if(r.customIdx!==undefined){
         const qty=parseInt(document.getElementById('ci_'+r.customIdx)?.value)||0;
         const def=CUSTOM_DEFS[r.customIdx];
-        if(qty>0)ibadaLabel=row.ibada+' <span style="background:#f0c040;color:#856404;font-size:9px;padding:1px 5px;border-radius:4px;font-weight:700">'+qty+' '+def.unit+'/يوم</span>';
+        if(qty>0)ibadaLabel=row.ibada+' <span style="background:#f0c040;color:#856404;font-size:9px;padding:1px 5px;border-radius:4px;font-weight:700">'+qty+' '+def.unit+'</span>';
       }
       const dayDots=Array.from({length:DAYS},(_,di)=>{
         const v=state[sk(row.ri,di+1)]||0;
