@@ -519,6 +519,12 @@ function b64ToArr(b64){const bin=atob(b64),a=new Uint8Array(bin.length);for(let 
 function exportExcel(){
   const name=document.getElementById('userName').value||'مجهولة';
   const dt=getDayTotals();let grand=0;dt.forEach(v=>grand+=v);
+  const amalDone=getAmalDone();
+  let amalPoints=0;
+  AMAL.forEach((a,i)=>{if(amalDone[i])amalPoints+=a.pts;});
+  const duaaDone=getDuaaDone();
+  const duaaPoints=getDuaaPoints();
+  grand+=amalPoints+duaaPoints;
   let filled=0;for(let d=1;d<=DAYS;d++)if(ROWS.some((_,ri)=>(state[sk(ri,d)]||0)!==0))filled++;
   const avg=filled>0?(grand/filled).toFixed(1):'—';
   const wb=XLSX.read(b64ToArr(TMPL),{type:'array'});
@@ -599,8 +605,6 @@ function openReport(){
     });
     catsHtml+='<div style="margin-bottom:12px"><div style="background:'+col+';color:#fff;font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;margin-bottom:6px;display:flex;justify-content:space-between"><span>'+cat+'</span><span>'+info.earned+' نقطة ('+catPct+'%)</span></div>'+rowsHtml+'</div>';
   });
-  const duaaDone=getDuaaDone();
-  const duaaPoints=getDuaaPoints();
   let duaaRows='';
   for(let d=1;d<=DAYS;d++){
     const dots=DUAA_ITEMS.map(it=>{
@@ -609,11 +613,19 @@ function openReport(){
     }).join('');
     duaaRows+='<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;background:#f8faf8;margin-bottom:3px"><div style="width:70px;font-size:11px;color:#2c2416;font-weight:700">اليوم '+d+'</div><div style="flex:1;font-size:10px;color:#7a6a52;line-height:1.4">'+DUAAS[d-1]+'</div><div style="white-space:nowrap">'+dots+'</div></div>';
   }
-  const duaaHtml='<div style="background:#fff;border-radius:12px;padding:14px;border:1px solid #e2d9c8;margin-bottom:1.2rem"><div style="font-size:13px;font-weight:700;color:#1a6b3c;margin-bottom:12px">🤲 خانة الدعاء — '+duaaPoints+' نقطة</div><div style="font-size:10px;color:#7a6a52;margin-bottom:8px">كل علامة = نقطتين: دعاء اليوم، دعاء لنفسك، دعاء لأمة المسلمين</div>'+duaaRows+'</div>';
+  let amalRows='';
+  AMAL.forEach((a,i)=>{
+    const ok=!!amalDone[i];
+    amalRows+='<div style="display:flex;align-items:flex-start;gap:7px;padding:6px 8px;border-radius:7px;background:'+(ok?'#f0f9f4':'#f8faf8')+';border:1px solid '+(ok?'#5cb87a':'#e2d9c8')+';margin-bottom:4px"><span style="width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:'+(ok?'#1a6b3c':'#f0f0f0')+';color:'+(ok?'#fff':'#ccc')+';font-size:11px;font-weight:700;flex-shrink:0">'+(ok?'✓':'')+'</span><div style="flex:1"><div style="font-size:11px;font-weight:700;color:#2c2416">'+a.name+'</div>'+(a.hadith?'<div style="font-size:9px;color:#7a6a52;line-height:1.5;margin-top:2px">'+a.hadith+'</div>':'')+'</div><div style="font-size:11px;font-weight:700;color:#1a6b3c;white-space:nowrap">'+a.pts+' نقاط</div></div>';
+  });
+  const amalHtml='<div style="background:#fff;border-radius:12px;padding:14px;border:1px solid #e2d9c8;margin-bottom:1.2rem"><div style="font-size:13px;font-weight:700;color:#1a6b3c;margin-bottom:12px">🌟 العمل الصالح — '+amalPoints+' نقطة</div>'+amalRows+'</div>';
+
+  const duaaHtml='<div style="background:#fff;border-radius:12px;padding:14px;border:1px solid #e2d9c8;margin-bottom:1.2rem"><div style="font-size:13px;font-weight:700;color:#1a6b3c;margin-bottom:12px">🤲 خانة الدعاء — '+duaaPoints+' نقطة</div><div style="font-size:10px;color:#7a6a52;margin-bottom:8px">كل علامة = نقطة واحدة: دعاء اليوم، دعاء لنفسك، دعاء لأمة المسلمين</div>'+duaaRows+'</div>';
   const rHtml='<div style="background:linear-gradient(135deg,#0f4a28,#1a6b3c);color:#fff;padding:1.4rem;border-radius:14px;text-align:center;margin-bottom:1.2rem"><div style="font-size:13px;color:#a8e6c0;margin-bottom:4px">بسم الله الرحمن الرحيم</div><div style="font-size:20px;font-weight:700">تقرير عبادة عشر ذي الحجة</div><div style="font-size:13px;opacity:.8;margin-top:3px">'+name+'</div></div>'
-  +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1.2rem"><div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2d9c8"><div style="font-size:24px;font-weight:700;color:#1a6b3c">'+grand+'</div><div style="font-size:10px;color:#7a6a52">المجموع</div></div><div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2d9c8"><div style="font-size:24px;font-weight:700;color:#1a6b3c">'+avg+'</div><div style="font-size:10px;color:#7a6a52">المعدل</div></div><div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2d9c8"><div style="font-size:24px;font-weight:700;color:#1a6b3c">'+filled+'<span style="font-size:14px;color:#7a6a52">/10</span></div><div style="font-size:10px;color:#7a6a52">الأيام</div></div></div>'
+  +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1.2rem"><div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2d9c8"><div style="font-size:24px;font-weight:700;color:#1a6b3c">'+grand+'</div><div style="font-size:10px;color:#7a6a52">المجموع</div></div><div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2d9c8"><div style="font-size:24px;font-weight:700;color:#1a6b3c">'+avg+'</div><div style="font-size:10px;color:#7a6a52">المعدل</div></div><div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2d9c8"><div style="font-size:24px;font-weight:700;color:#1a6b3c">'+filled+'<span style="font-size:14px;color:#7a6a52">/9</span></div><div style="font-size:10px;color:#7a6a52">الأيام</div></div></div>'
   +'<div style="background:#fff;border-radius:12px;padding:14px;border:1px solid #e2d9c8;margin-bottom:1.2rem"><div style="font-size:13px;font-weight:700;color:#1a6b3c;margin-bottom:12px">📊 الأداء اليومي</div><div style="display:flex;gap:4px;align-items:flex-end;height:130px">'+bars+'</div></div>'
   +'<div style="background:#fff;border-radius:12px;padding:14px;border:1px solid #e2d9c8;margin-bottom:1.2rem"><div style="font-size:13px;font-weight:700;color:#1a6b3c;margin-bottom:12px">📋 تفصيل العبادات</div>'+catsHtml+'</div>'
+  +amalHtml
   +duaaHtml
   +'<div style="text-align:center;padding-bottom:1rem"><button onclick="window.print()" style="font-family:inherit;font-size:13px;padding:10px 24px;background:#1a6b3c;color:#fff;border:none;border-radius:8px;cursor:pointer">🖨️ طباعة</button></div>';
   let ov=document.getElementById('rptOv');if(ov)ov.remove();
