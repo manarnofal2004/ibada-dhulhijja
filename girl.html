@@ -614,11 +614,11 @@ function openReport(){
   let duaaRows='';
   for(let d=1;d<=DAYS;d++){
     const dots='<div style="display:flex;gap:6px;text-align:center">'
- +'<div><div style="font-size:8px;color:#7a6a52;margin-bottom:2px">دعاء اليوم</div><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:5px;background:'+(!!duaaDone[d+\'-daily\']?'#d4f4e2':'#f0f0f0')+';color:'+(!!duaaDone[d+\'-daily\']?'#1a6b3c':'#ccc')+';font-size:10px;font-weight:700">'+(!!duaaDone[d+\'-daily\']?'✓':'')+'</span></div>'
+ +'<div><div style="font-size:8px;color:#7a6a52;margin-bottom:2px">دعاء اليوم</div><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:5px;background:'+(!!duaaDone[d+'-daily']?'#d4f4e2':'#f0f0f0')+';color:'+(!!duaaDone[d+'-daily']?'#1a6b3c':'#ccc')+';font-size:10px;font-weight:700">'+(!!duaaDone[d+'-daily']?'✓':'')+'</span></div>'
 
- +'<div><div style="font-size:8px;color:#7a6a52;margin-bottom:2px">لنفسك</div><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:5px;background:'+(!!duaaDone[d+\'-self\']?'#d4f4e2':'#f0f0f0')+';color:'+(!!duaaDone[d+\'-self\']?'#1a6b3c':'#ccc')+';font-size:10px;font-weight:700">'+(!!duaaDone[d+\'-self\']?'✓':'')+'</span></div>'
+ +'<div><div style="font-size:8px;color:#7a6a52;margin-bottom:2px">لنفسك</div><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:5px;background:'+(!!duaaDone[d+'-self']?'#d4f4e2':'#f0f0f0')+';color:'+(!!duaaDone[d+'-self']?'#1a6b3c':'#ccc')+';font-size:10px;font-weight:700">'+(!!duaaDone[d+'-self']?'✓':'')+'</span></div>'
 
- +'<div><div style="font-size:8px;color:#7a6a52;margin-bottom:2px">لأمة المسلمين</div><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:5px;background:'+(!!duaaDone[d+\'-ummah\']?'#d4f4e2':'#f0f0f0')+';color:'+(!!duaaDone[d+\'-ummah\']?'#1a6b3c':'#ccc')+';font-size:10px;font-weight:700">'+(!!duaaDone[d+\'-ummah\']?'✓':'')+'</span></div>'
+ +'<div><div style="font-size:8px;color:#7a6a52;margin-bottom:2px">لأمة المسلمين</div><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:5px;background:'+(!!duaaDone[d+'-ummah']?'#d4f4e2':'#f0f0f0')+';color:'+(!!duaaDone[d+'-ummah']?'#1a6b3c':'#ccc')+';font-size:10px;font-weight:700">'+(!!duaaDone[d+'-ummah']?'✓':'')+'</span></div>'
 +'</div>';
     duaaRows+='<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;background:#f8faf8;margin-bottom:3px"><div style="width:70px;font-size:11px;color:#2c2416;font-weight:700">اليوم '+d+'</div><div style="flex:1;font-size:10px;color:#7a6a52;line-height:1.4">'+DUAAS[d-1]+'</div><div style="white-space:nowrap">'+dots+'</div></div>';
   }
@@ -642,7 +642,7 @@ function openReport(){
   ov.style.cssText='position:fixed;inset:0;z-index:9000;background:#fdfaf5;overflow-y:auto;-webkit-overflow-scrolling:touch';
   const cb=document.createElement('div');
   cb.style.cssText='position:sticky;top:0;z-index:9999;background:#0f4a28;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem';
-  cb.innerHTML='<span style="color:#fff;font-size:13px;font-weight:600">📊 تقريري</span><button onclick="document.getElementById(\'rptOv\').remove()" style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-family:inherit;font-size:12px;cursor:pointer">✕ إغلاق</button>';
+  cb.innerHTML='<span style="color:#fff;font-size:13px;font-weight:600">📊 تقريري</span><button onclick="document.getElementById('rptOv').remove()" style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-family:inherit;font-size:12px;cursor:pointer">✕ إغلاق</button>';
   const ct=document.createElement('div');ct.style.cssText='padding:0 1rem';ct.innerHTML=rHtml;
   ov.appendChild(cb);ov.appendChild(ct);document.body.appendChild(ov);
 }
