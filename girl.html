@@ -637,7 +637,8 @@ function openReport(){
   +amalHtml
   +duaaHtml
   +'<div style="text-align:center;padding-bottom:1rem"><button onclick="window.print()" style="font-family:inherit;font-size:13px;padding:10px 24px;background:#1a6b3c;color:#fff;border:none;border-radius:8px;cursor:pointer">🖨️ طباعة</button></div>';
-  let ov=document.getElementById('rptOv');if(ov)ov.remove();
+
+  let ov=document.getElementById("rptOv");if(ov)ov.remove();
   ov=document.createElement('div');ov.id='rptOv';
   ov.style.cssText='position:fixed;inset:0;z-index:9000;background:#fdfaf5;overflow-y:auto;-webkit-overflow-scrolling:touch';
   const cb=document.createElement('div');
