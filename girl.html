@@ -545,6 +545,12 @@ function exportExcel(){
 function openReport(){
   const name=document.getElementById('userName').value||'—';
   const dt=getDayTotals();let grand=0;dt.forEach(v=>grand+=v);
+  const amalDone=getAmalDone();
+  let amalPoints=0;
+  AMAL.forEach((a,i)=>{if(amalDone[i])amalPoints+=a.pts;});
+  const duaaDone=getDuaaDone();
+  const duaaPoints=getDuaaPoints();
+  grand+=amalPoints+duaaPoints;
   let filled=0;for(let d=1;d<=DAYS;d++)if(ROWS.some((_,ri)=>(state[sk(ri,d)]||0)!==0))filled++;
   const avg=filled>0?(grand/filled).toFixed(1):'—';
   const maxVal=Math.max(...dt,1);
@@ -605,7 +611,6 @@ function openReport(){
     });
     catsHtml+='<div style="margin-bottom:12px"><div style="background:'+col+';color:#fff;font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;margin-bottom:6px;display:flex;justify-content:space-between"><span>'+cat+'</span><span>'+info.earned+' نقطة ('+catPct+'%)</span></div>'+rowsHtml+'</div>';
   });
-  const duaaDone=getDuaaDone();
   let duaaRows='';
   for(let d=1;d<=DAYS;d++){
     const dots=DUAA_ITEMS.map(it=>{
@@ -614,7 +619,6 @@ function openReport(){
     }).join('');
     duaaRows+='<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;background:#f8faf8;margin-bottom:3px"><div style="width:70px;font-size:11px;color:#2c2416;font-weight:700">اليوم '+d+'</div><div style="flex:1;font-size:10px;color:#7a6a52;line-height:1.4">'+DUAAS[d-1]+'</div><div style="white-space:nowrap">'+dots+'</div></div>';
   }
-  const amalDone=getAmalDone();
   let amalRows='';
   AMAL.forEach((a,i)=>{
     const ok=!!amalDone[i];
